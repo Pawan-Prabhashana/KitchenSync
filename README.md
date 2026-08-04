@@ -1,4 +1,5 @@
 # KitchenSync
+https://kitchen-sync-eosin.vercel.app/
 
 Real-time kitchen order management board for waiters and chefs with live synchronization, urgency timers, conflict guards, and order stage history.
 
