@@ -1,0 +1,221 @@
+import React, { useState } from 'react';
+import { X, Shield, Sparkles } from 'lucide-react';
+import { User, Role } from '../types';
+import { DEMO_USERS } from '../data/menu';
+
+interface AuthModalProps {
+  currentUser: User | null;
+  onClose: () => void;
+  onUserChanged: (user: User) => void;
+}
+
+export const AuthModal: React.FC<AuthModalProps> = ({
+  currentUser,
+  onClose,
+  onUserChanged
+}) => {
+  const [isRegistering, setIsRegistering] = useState<boolean>(false);
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [role, setRole] = useState<Role>('chef');
+
+  const handleQuickLogin = (user: typeof DEMO_USERS[0]) => {
+    onUserChanged(user);
+    onClose();
+  };
+
+  const handleCustomAuth = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isRegistering) {
+      const newUser: User = {
+        id: `u_${Date.now()}`,
+        name: name || 'Staff Member',
+        email: email || 'staff@kitchensync.com',
+        role: role,
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
+      };
+      onUserChanged(newUser);
+    } else {
+      const existing = DEMO_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
+      if (existing) {
+        onUserChanged(existing);
+      } else {
+        const customUser: User = {
+          id: `u_${Date.now()}`,
+          name: email.split('@')[0] || 'User',
+          email: email,
+          role: role,
+          avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
+        };
+        onUserChanged(customUser);
+      }
+    }
+    onClose();
+  };
+
+  const chefs = DEMO_USERS.filter(u => u.role === 'chef');
+  const waiters = DEMO_USERS.filter(u => u.role === 'waiter');
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in">
+      <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden">
+        
+        {/* Header */}
+        <div className="p-4 px-6 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-emerald-100 text-emerald-800 rounded-xl">
+              <Shield className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-slate-900">KitchenSync Account & Roles</h2>
+              <p className="text-xs text-slate-500">JWT Authenticated Role Switcher</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-6">
+          {/* Quick Demo Login Preset Buttons */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Demo Quick Login
+              </span>
+              <span className="text-[11px] text-slate-400">Click to switch persona</span>
+            </div>
+
+            {/* Chefs */}
+            <div className="mb-3">
+              <div className="text-[11px] font-bold text-emerald-800 uppercase mb-1">Chefs (Advances orders, Cooks)</div>
+              <div className="grid grid-cols-3 gap-2">
+                {chefs.map(chef => (
+                  <button
+                    key={chef.id}
+                    onClick={() => handleQuickLogin(chef)}
+                    className={`p-2 rounded-xl border text-left flex items-center gap-2 transition-all ${
+                      currentUser?.id === chef.id
+                        ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-300'
+                        : 'border-slate-200 hover:border-emerald-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    <img src={chef.avatar} alt={chef.name} className="w-7 h-7 rounded-full object-cover shrink-0" />
+                    <div className="truncate">
+                      <div className="text-xs font-bold text-slate-800 truncate">{chef.name.split(' ')[0]}</div>
+                      <div className="text-[10px] text-slate-400">Chef</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Waiters */}
+            <div>
+              <div className="text-[11px] font-bold text-blue-800 uppercase mb-1">Waiters (Creates orders, Serves)</div>
+              <div className="grid grid-cols-3 gap-2">
+                {waiters.map(waiter => (
+                  <button
+                    key={waiter.id}
+                    onClick={() => handleQuickLogin(waiter)}
+                    className={`p-2 rounded-xl border text-left flex items-center gap-2 transition-all ${
+                      currentUser?.id === waiter.id
+                        ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-300'
+                        : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    <img src={waiter.avatar} alt={waiter.name} className="w-7 h-7 rounded-full object-cover shrink-0" />
+                    <div className="truncate">
+                      <div className="text-xs font-bold text-slate-800 truncate">{waiter.name.split(' ')[0]}</div>
+                      <div className="text-[10px] text-slate-400">Waiter</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200" /></div>
+            <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-slate-400 font-semibold">Or Custom Auth</span></div>
+          </div>
+
+          {/* Custom Credentials Form */}
+          <form onSubmit={handleCustomAuth} className="space-y-3">
+            {isRegistering && (
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Full Name</label>
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Alex Mercer"
+                  className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="email@kitchensync.com"
+                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              />
+            </div>
+
+            {isRegistering && (
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Select Role</label>
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-1.5 text-xs text-slate-700 font-medium">
+                    <input
+                      type="radio"
+                      name="role"
+                      value="chef"
+                      checked={role === 'chef'}
+                      onChange={() => setRole('chef')}
+                    />
+                    Chef (Kitchen)
+                  </label>
+                  <label className="flex items-center gap-1.5 text-xs text-slate-700 font-medium">
+                    <input
+                      type="radio"
+                      name="role"
+                      value="waiter"
+                      checked={role === 'waiter'}
+                      onChange={() => setRole('waiter')}
+                    />
+                    Waiter (Floor)
+                  </label>
+                </div>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all"
+            >
+              {isRegistering ? 'Register Staff Account' : 'Switch Staff Persona'}
+            </button>
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => setIsRegistering(!isRegistering)}
+                className="text-xs text-emerald-600 font-medium hover:underline"
+              >
+                {isRegistering ? 'Already have an account? Sign in' : "Don't have an account? Register new staff"}
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  );
+};
