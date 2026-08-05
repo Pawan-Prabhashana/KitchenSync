@@ -5,6 +5,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 import { Sidebar } from './components/Sidebar';
 import { Board } from './components/Board';
 import { OrderDetailDrawer } from './components/OrderDetailDrawer';
@@ -24,7 +26,21 @@ import { INITIAL_HARDCODED_ORDERS } from './data/initialOrders';
 const LOCAL_STORAGE_KEY = 'kitchensync_orders_v1';
 
 export default function App() {
-  const [currentUser, setCurrentUser] = useState<User | null>(DEMO_USERS[0]); // Priya Fernando (Chef) by default
+  const [route, setRoute] = useState<string>(window.location.hash || '');
+
+  useEffect(() => {
+    const onHash = () => setRoute(window.location.hash || '');
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  // If not authenticated, redirect to login on first load
+  useEffect(() => {
+    if (!currentUser && (window.location.hash === '' || window.location.hash === '#')) {
+      window.location.hash = '#/login';
+    }
+  }, [currentUser]);
   const [orders, setOrders] = useState<Order[]>(() => {
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -68,6 +84,11 @@ export default function App() {
       console.warn('Failed to save orders to localStorage');
     }
   }, [orders]);
+
+  const handleAuthSuccess = (user: User) => {
+    setCurrentUser(user);
+    window.location.hash = '';
+  };
 
   // Handlers for user operations
   const handleMoveStage = (orderId: string, toStage: Stage) => {
@@ -187,120 +208,129 @@ export default function App() {
     }));
   };
 
-  return (
-    <div className="min-h-screen bg-slate-100/60 font-sans text-slate-800 flex flex-col antialiased">
-      {/* Top Header */}
-      <Header
-        currentUser={currentUser}
-        activeUsersCount={activeUsersCount}
-        filters={filters}
-        setFilters={setFilters}
-        onOpenAuth={() => setIsAuthModalOpen(true)}
-        onOpenNewOrder={() => setIsNewOrderModalOpen(true)}
-        onUndo={handleUndoMove}
-        canUndo={undoStack.length > 0}
-        activeTab={activeTab}
-      />
+    // If route is login or signup, render full-page auth routes
+    if (route === '#/login') {
+      return <LoginPage onAuthSuccess={handleAuthSuccess} />;
+    }
 
-      {/* Main Container */}
-      <div className="flex flex-1 items-stretch">
-        {/* Left Sidebar */}
-        <Sidebar
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
+    if (route === '#/signup') {
+      return <SignupPage onAuthSuccess={handleAuthSuccess} />;
+    }
+
+    return (
+      <div className="min-h-screen bg-slate-100/60 font-sans text-slate-800 flex flex-col antialiased">
+        {/* Top Header */}
+        <Header
+          currentUser={currentUser}
+          activeUsersCount={activeUsersCount}
           filters={filters}
           setFilters={setFilters}
+          onOpenAuth={() => setIsAuthModalOpen(true)}
           onOpenNewOrder={() => setIsNewOrderModalOpen(true)}
+          onUndo={handleUndoMove}
+          canUndo={undoStack.length > 0}
+          activeTab={activeTab}
         />
 
-        {/* Dynamic View Area */}
-        <main className="flex-1 overflow-y-auto pb-12">
-          {activeTab === 'board' && (
-            <Board
-              orders={orders}
-              currentUser={currentUser}
-              filters={filters}
-              onSelectOrder={(order) => setSelectedOrder(order)}
-              onMoveStage={handleMoveStage}
-              onAssignChef={handleAssignChef}
-              onDeleteOrder={handleDeleteOrder}
-              onOpenNewOrder={() => setIsNewOrderModalOpen(true)}
-            />
-          )}
+        {/* Main Container */}
+        <div className="flex flex-1 items-stretch">
+          {/* Left Sidebar */}
+          <Sidebar
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            filters={filters}
+            setFilters={setFilters}
+            onOpenNewOrder={() => setIsNewOrderModalOpen(true)}
+          />
 
-          {activeTab === 'orders' && (
-            <OrdersTableView
-              orders={orders}
-              onSelectOrder={(order) => setSelectedOrder(order)}
-              onMoveStage={handleMoveStage}
-              onDeleteOrder={handleDeleteOrder}
-            />
-          )}
+          {/* Dynamic View Area */}
+          <main className="flex-1 overflow-y-auto pb-12 ml-64">
+            {activeTab === 'board' && (
+              <Board
+                orders={orders}
+                currentUser={currentUser}
+                filters={filters}
+                onSelectOrder={(order) => setSelectedOrder(order)}
+                onMoveStage={handleMoveStage}
+                onAssignChef={handleAssignChef}
+                onDeleteOrder={handleDeleteOrder}
+                onOpenNewOrder={() => setIsNewOrderModalOpen(true)}
+              />
+            )}
 
-          {activeTab === 'chefs' && (
-            <ChefsView
-              orders={orders}
-              onSelectOrder={(order) => setSelectedOrder(order)}
-            />
-          )}
+            {activeTab === 'orders' && (
+              <OrdersTableView
+                orders={orders}
+                onSelectOrder={(order) => setSelectedOrder(order)}
+                onMoveStage={handleMoveStage}
+                onDeleteOrder={handleDeleteOrder}
+              />
+            )}
 
-          {activeTab === 'history' && (
-            <HistoryView
-              orders={orders}
-              onSelectOrder={(order) => setSelectedOrder(order)}
-            />
-          )}
+            {activeTab === 'chefs' && (
+              <ChefsView
+                orders={orders}
+                onSelectOrder={(order) => setSelectedOrder(order)}
+              />
+            )}
 
-          {activeTab === 'analytics' && (
-            <AnalyticsView orders={orders} />
-          )}
+            {activeTab === 'history' && (
+              <HistoryView
+                orders={orders}
+                onSelectOrder={(order) => setSelectedOrder(order)}
+              />
+            )}
 
-          {activeTab === 'settings' && (
-            <SettingsView />
-          )}
-        </main>
-      </div>
+            {activeTab === 'analytics' && (
+              <AnalyticsView orders={orders} />
+            )}
 
-      {/* Right Slide-over Order Detail Drawer */}
-      <OrderDetailDrawer
-        order={selectedOrder}
-        currentUser={currentUser}
-        onClose={() => {
-          setSelectedOrder(null);
-        }}
-        onMoveStage={handleMoveStage}
-        onDeleteOrder={handleDeleteOrder}
-        conflictData={null}
-        onRefreshConflict={() => {}}
-      />
+            {activeTab === 'settings' && (
+              <SettingsView />
+            )}
+          </main>
+        </div>
 
-      {/* New Order Modal */}
-      {isNewOrderModalOpen && (
-        <NewOrderModal
+        {/* Right Slide-over Order Detail Drawer */}
+        <OrderDetailDrawer
+          order={selectedOrder}
           currentUser={currentUser}
-          onClose={() => setIsNewOrderModalOpen(false)}
-          onSubmit={handleCreateOrder}
-        />
-      )}
-
-      {/* Account / Role Switch Modal */}
-      {isAuthModalOpen && (
-        <AuthModal
-          currentUser={currentUser}
-          onClose={() => setIsAuthModalOpen(false)}
-          onUserChanged={(newUser) => {
-            setCurrentUser(newUser);
+          onClose={() => {
+            setSelectedOrder(null);
           }}
+          onMoveStage={handleMoveStage}
+          onDeleteOrder={handleDeleteOrder}
+          conflictData={null}
+          onRefreshConflict={() => {}}
         />
-      )}
 
-      {/* Bottom Sync Status Bar */}
-      <BottomStatusBar
-        isConnected={isConnected}
-        activeUsersCount={activeUsersCount}
-        lastUpdatedUser={lastActivity.user}
-        lastUpdatedTime={lastActivity.time}
-      />
-    </div>
-  );
+        {/* New Order Modal */}
+        {isNewOrderModalOpen && (
+          <NewOrderModal
+            currentUser={currentUser}
+            onClose={() => setIsNewOrderModalOpen(false)}
+            onSubmit={handleCreateOrder}
+          />
+        )}
+
+        {/* Account / Role Switch Modal */}
+        {isAuthModalOpen && (
+          <AuthModal
+            currentUser={currentUser}
+            onClose={() => setIsAuthModalOpen(false)}
+            onUserChanged={(newUser) => {
+              setCurrentUser(newUser);
+            }}
+          />
+        )}
+
+        {/* Bottom Sync Status Bar */}
+        <BottomStatusBar
+          isConnected={isConnected}
+          activeUsersCount={activeUsersCount}
+          lastUpdatedUser={lastActivity.user}
+          lastUpdatedTime={lastActivity.time}
+        />
+      </div>
+    );
 }

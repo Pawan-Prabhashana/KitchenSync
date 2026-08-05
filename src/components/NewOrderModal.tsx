@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Plus, Minus, ShoppingBag, ChefHat, Check } from 'lucide-react';
 import { User } from '../types';
 import { MENU_ITEMS, TABLES, DEMO_USERS } from '../data/menu';
+import SelectMenu from './SelectMenu';
 
 interface NewOrderModalProps {
   currentUser: User | null;
@@ -113,42 +114,44 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">Table Number</label>
-              <select
+              <SelectMenu
+                options={TABLES.map(t => ({ value: t, label: t }))}
                 value={selectedTable}
-                onChange={(e) => setSelectedTable(e.target.value)}
-                className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-              >
-                {TABLES.map(t => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
-              </select>
+                onChange={(v) => setSelectedTable(v)}
+                placeholder="Select table"
+              />
             </div>
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">Waiter Name</label>
-              <select
+              <SelectMenu
+                options={waiters.map(w => ({ value: w.name, label: w.name }))}
                 value={waiterName}
-                onChange={(e) => setWaiterName(e.target.value)}
-                className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-              >
-                {waiters.map(w => (
-                  <option key={w.id} value={w.name}>{w.name}</option>
-                ))}
-              </select>
+                onChange={(v) => setWaiterName(v)}
+                placeholder="Select waiter"
+              />
             </div>
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">Assign Chef (Optional)</label>
-              <select
+              <SelectMenu
+                options={[{ value: '', label: 'Auto / Select Chef' }, ...chefs.map(c => ({ value: c.name, label: c.name }))]}
                 value={selectedChef}
-                onChange={(e) => setSelectedChef(e.target.value)}
-                className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-              >
-                <option value="">Auto / Select Chef</option>
-                {chefs.map(c => (
-                  <option key={c.id} value={c.name}>{c.name}</option>
-                ))}
-              </select>
+                onChange={(v) => setSelectedChef(v)}
+                placeholder="Assign chef"
+                size="sm"
+                renderItem={(opt) => {
+                  const chef = DEMO_USERS.find(u => u.name === opt.label);
+                  return (
+                    <div className="flex items-center gap-2">
+                      {chef?.avatar ? <img src={chef.avatar} alt={chef?.name} className="w-5 h-5 rounded-full object-cover" /> : null}
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-slate-800">{opt.label}</div>
+                      </div>
+                    </div>
+                  );
+                }}
+              />
             </div>
           </div>
 
