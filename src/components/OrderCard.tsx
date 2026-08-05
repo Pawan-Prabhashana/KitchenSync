@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, Trash2, MoreHorizontal, CheckCircle2, User as UserIcon, ArrowRight, AlertTriangle } from 'lucide-react';
+import SelectMenu from './SelectMenu';
 import { Order, Stage, User } from '../types';
 import { DEMO_USERS } from '../data/menu';
 
@@ -163,18 +164,30 @@ export const OrderCard: React.FC<OrderCardProps> = ({
       {/* Chef assignment selector if unassigned or in New/Cooking */}
       {(!order.chef || order.stage === 'New') && (
         <div className="mb-3" onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
-            <span>Assign:</span>
-            <select
-              value={order.chef || ''}
-              onChange={(e) => onAssignChef(order.id, e.target.value)}
-              className="text-[11px] bg-slate-50 border border-slate-200 rounded-md px-2 py-0.5 text-slate-700 focus:outline-none focus:border-emerald-500"
-            >
-              <option value="">Select Chef</option>
-              {chefs.map(c => (
-                <option key={c.id} value={c.name}>{c.name}</option>
-              ))}
-            </select>
+          <div className="mb-3" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
+              <span>Assign:</span>
+            </div>
+            <div>
+              <SelectMenu
+                options={[{ value: '', label: 'Select Chef' }, ...chefs.map(c => ({ value: c.name, label: c.name }))]}
+                value={order.chef || ''}
+                onChange={(v) => onAssignChef(order.id, v)}
+                placeholder="Select Chef"
+                size="sm"
+                renderItem={(opt) => {
+                  const chef = DEMO_USERS.find(u => u.name === opt.label);
+                  return (
+                    <div className="flex items-center gap-2">
+                      {chef?.avatar ? <img src={chef.avatar} alt={chef?.name} className="w-5 h-5 rounded-full object-cover" /> : null}
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-slate-800">{opt.label}</div>
+                      </div>
+                    </div>
+                  );
+                }}
+              />
+            </div>
           </div>
         </div>
       )}
