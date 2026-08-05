@@ -113,6 +113,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Active User profile & Switch User Button */}
+
         <button
           onClick={onOpenAuth}
           className="flex items-center gap-2 pl-2 pr-3 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-all text-left"
