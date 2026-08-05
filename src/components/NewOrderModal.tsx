@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { X, Plus, Minus, ShoppingBag, ChefHat, Check } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
+import { X, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { User } from '../types';
 import { MENU_ITEMS, TABLES, DEMO_USERS } from '../data/menu';
 import SelectMenu from './SelectMenu';
@@ -88,10 +89,27 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
   const chefs = DEMO_USERS.filter(u => u.role === 'chef');
   const waiters = DEMO_USERS.filter(u => u.role === 'waiter');
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in">
-      <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
-        
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Create new kitchen order"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.18 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]"
+      >
         {/* Header */}
         <div className="p-4 px-6 border-b border-slate-200 flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-2">
@@ -271,7 +289,7 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
           </div>
         </form>
 
-      </div>
+      </motion.div>
     </div>
   );
 };

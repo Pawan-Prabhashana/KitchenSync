@@ -1,6 +1,14 @@
-export type Role = 'waiter' | 'chef' | 'admin';
+export type Role = 'waiter' | 'chef' | 'admin' | 'rider';
 
 export type Stage = 'New' | 'Cooking' | 'Ready' | 'Served';
+
+/** Which board the user is currently working in. */
+export type BoardType = 'kitchen' | 'delivery';
+
+/** Column stages for the Delivery board (kept separate from kitchen Stage). */
+export type DeliveryStage = 'Preparing' | 'Ready for Pickup' | 'Out for Delivery' | 'Delivered';
+
+export type PaymentMethod = 'Cash' | 'Card' | 'Online';
 
 export interface User {
   id: string;
@@ -43,6 +51,43 @@ export interface Order {
   history: OrderHistoryItem[];
 }
 
+export interface DeliveryHistoryItem {
+  id: string;
+  stage: DeliveryStage;
+  timestamp: string;
+  user: string;
+  role: Role;
+}
+
+/**
+ * A delivery-side order. Mirrors {@link Order} but models the doorstep-delivery
+ * domain (customer, address, rider, ETA, payment). Carries the same
+ * version / lastUpdatedBy / lastUpdatedAt / history fields so the conflict guard
+ * and history timeline work identically across both boards.
+ */
+export interface DeliveryOrder {
+  id: string;
+  customerName: string;
+  address: string;
+  distanceKm: number;
+  items: OrderItem[];
+  specialNotes?: string;
+  stage: DeliveryStage;
+  rider?: string;
+  paymentMethod: PaymentMethod;
+  orderTotal: number;
+  /** Target delivery window (minutes from order creation) — drives the ETA/lateness timer. */
+  etaMinutes: number;
+  createdAt: string;
+  createdAtTimestamp: number;
+  deliveredAt?: string;
+  deliveredAtTimestamp?: number;
+  lastUpdatedBy: string;
+  lastUpdatedAt: string;
+  version: number;
+  history: DeliveryHistoryItem[];
+}
+
 export interface FilterOptions {
   chef: string;
   table: string;
@@ -75,4 +120,23 @@ export interface ConflictNotification {
   tableNumber: string;
   updatedBy: string;
   updatedAt: string;
+}
+
+/**
+ * Lightweight conflict payload surfaced by the optimistic-concurrency guard.
+ * Shared by both boards; wiring to a real Socket.io `order:updated` event later
+ * is a drop-in replacement for the demo "simulate teammate edit" trigger.
+ */
+export interface ConflictInfo {
+  orderId: string;
+  updatedBy: string;
+  updatedAt: string;
+}
+
+/** Minimal shape the conflict guard needs from any versioned entity. */
+export interface Versioned {
+  id: string;
+  version: number;
+  lastUpdatedBy: string;
+  lastUpdatedAt: string;
 }

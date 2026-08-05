@@ -15,7 +15,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onAuthSuccess }) => {
     const existing = DEMO_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (existing) {
       onAuthSuccess(existing);
-      window.location.hash = '';
       return;
     }
     setError('No demo user with that email. Try a demo email or sign up.');
@@ -51,7 +50,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onAuthSuccess }) => {
             {DEMO_USERS.slice(0, 6).map(u => (
               <button
                 key={u.id}
-                onClick={() => { onAuthSuccess(u); window.location.hash = ''; }}
+                onClick={() => onAuthSuccess(u)}
                 className="p-2 rounded-xl border border-slate-200 text-left flex items-center gap-2 hover:bg-slate-50"
               >
                 <img src={u.avatar} alt={u.name} className="w-8 h-8 rounded-full object-cover" />
