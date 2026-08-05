@@ -72,7 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   });
 
   return (
-    <aside className="w-64 bg-slate-50 border-r border-slate-200 flex flex-col h-[calc(100vh-57px)] sticky top-[57px] shrink-0 p-4 justify-between overflow-y-auto">
+    <aside className="fixed left-0 top-[57px] w-64 bg-slate-50 border-r border-slate-200 flex flex-col h-[calc(100vh-57px-48px)] shrink-0 p-4 justify-between z-25">
       <div className="space-y-6">
         {/* Navigation Tabs */}
         <nav className="space-y-1">
@@ -156,7 +156,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Kitchen Time Digital Clock Box */}
-      <div className="mt-6 bg-amber-50/80 border border-amber-200/80 rounded-2xl p-3.5 flex items-center gap-3">
+      <div className="mt-1 bg-amber-50/80 border border-amber-200/80 rounded-2xl p-3.5 flex items-center gap-3">
         <div className="p-2 rounded-xl bg-amber-100 text-amber-800">
           <Clock className="w-4 h-4" />
         </div>

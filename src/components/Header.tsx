@@ -25,7 +25,7 @@ export const Header: React.FC<HeaderProps> = ({
   activeTab
 }) => {
   return (
-    <header className="bg-white border-b border-slate-200 px-4 py-3 sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+    <header className="bg-white border-b border-slate-200 px-4 py-3 sticky top-0 z-30 flex flex-wrap items-center justify-between gap-3 shadow-xs">
       {/* Brand & Page Title */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2.5">

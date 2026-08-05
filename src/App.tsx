@@ -244,7 +244,7 @@ export default function App() {
           />
 
           {/* Dynamic View Area */}
-          <main className="flex-1 overflow-y-auto pb-12">
+          <main className="flex-1 overflow-y-auto pb-12 ml-64">
             {activeTab === 'board' && (
               <Board
                 orders={orders}
