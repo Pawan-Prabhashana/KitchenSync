@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Shield, Sparkles } from 'lucide-react';
 import { User, Role } from '../types';
-import { DEMO_USERS } from '../data/menu';
+import { DEMO_USERS, DEMO_RIDERS } from '../data/menu';
 
 interface AuthModalProps {
   currentUser: User | null;
@@ -19,7 +19,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [email, setEmail] = useState<string>('');
   const [role, setRole] = useState<Role>('chef');
 
-  const handleQuickLogin = (user: typeof DEMO_USERS[0]) => {
+  const handleQuickLogin = (user: User) => {
     onUserChanged(user);
     onClose();
   };
@@ -55,6 +55,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   const chefs = DEMO_USERS.filter(u => u.role === 'chef');
   const waiters = DEMO_USERS.filter(u => u.role === 'waiter');
+  const riders = DEMO_RIDERS;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in">
@@ -111,7 +112,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
 
             {/* Waiters */}
-            <div>
+            <div className="mb-3">
               <div className="text-[11px] font-bold text-blue-800 uppercase mb-1">Waiters (Creates orders, Serves)</div>
               <div className="grid grid-cols-3 gap-2">
                 {waiters.map(waiter => (
@@ -128,6 +129,30 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     <div className="truncate">
                       <div className="text-xs font-bold text-slate-800 truncate">{waiter.name.split(' ')[0]}</div>
                       <div className="text-[10px] text-slate-400">Waiter</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Riders */}
+            <div>
+              <div className="text-[11px] font-bold text-indigo-800 uppercase mb-1">Riders (Delivery dispatch)</div>
+              <div className="grid grid-cols-3 gap-2">
+                {riders.map(rider => (
+                  <button
+                    key={rider.id}
+                    onClick={() => handleQuickLogin(rider)}
+                    className={`p-2 rounded-xl border text-left flex items-center gap-2 transition-all ${
+                      currentUser?.id === rider.id
+                        ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-300'
+                        : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    <img src={rider.avatar} alt={rider.name} className="w-7 h-7 rounded-full object-cover shrink-0" />
+                    <div className="truncate">
+                      <div className="text-xs font-bold text-slate-800 truncate">{rider.name.split(' ')[0]}</div>
+                      <div className="text-[10px] text-slate-400">Rider</div>
                     </div>
                   </button>
                 ))}
@@ -171,7 +196,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {isRegistering && (
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Select Role</label>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   <label className="flex items-center gap-1.5 text-xs text-slate-700 font-medium">
                     <input
                       type="radio"
@@ -180,7 +205,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       checked={role === 'chef'}
                       onChange={() => setRole('chef')}
                     />
-                    Chef (Kitchen)
+                    Chef
                   </label>
                   <label className="flex items-center gap-1.5 text-xs text-slate-700 font-medium">
                     <input
@@ -190,7 +215,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       checked={role === 'waiter'}
                       onChange={() => setRole('waiter')}
                     />
-                    Waiter (Floor)
+                    Waiter
+                  </label>
+                  <label className="flex items-center gap-1.5 text-xs text-slate-700 font-medium">
+                    <input
+                      type="radio"
+                      name="role"
+                      value="rider"
+                      checked={role === 'rider'}
+                      onChange={() => setRole('rider')}
+                    />
+                    Rider
                   </label>
                 </div>
               </div>
