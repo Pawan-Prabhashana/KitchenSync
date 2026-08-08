@@ -20,7 +20,6 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onAuthSuccess }) => {
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
     } as User;
     onAuthSuccess(newUser);
-    window.location.hash = '';
   };
 
   return (
@@ -56,7 +55,7 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onAuthSuccess }) => {
 
           <div>
             <label className="text-xs font-medium text-slate-700">Role</label>
-            <div className="flex gap-3 mt-2">
+            <div className="flex gap-3 mt-2 flex-wrap">
               <label className="text-sm">
                 <input type="radio" name="role" value="waiter" checked={role === 'waiter'} onChange={() => setRole('waiter')} />{' '}
                 Waiter
@@ -64,6 +63,10 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onAuthSuccess }) => {
               <label className="text-sm">
                 <input type="radio" name="role" value="chef" checked={role === 'chef'} onChange={() => setRole('chef')} />{' '}
                 Chef
+              </label>
+              <label className="text-sm">
+                <input type="radio" name="role" value="rider" checked={role === 'rider'} onChange={() => setRole('rider')} />{' '}
+                Rider
               </label>
             </div>
           </div>
