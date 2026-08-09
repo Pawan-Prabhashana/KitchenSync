@@ -1,171 +1,100 @@
 # KitchenSync
-https://kitchen-sync-eosin.vercel.app/
 
-Real-time kitchen order management board for waiters and chefs with live synchronization, urgency timers, conflict guards, and order stage history.
+**Live demo:** [https://kitchensync-m1-static-skeleton-1.vercel.app/](https://kitchensync-m1-static-skeleton-1.vercel.app/)
 
-## Features
+KitchenSync is a dual-board restaurant ops UI for **dine-in kitchen** and **delivery dispatch**. Waiters, chefs, and riders can create orders, advance stages, assign staff, and review history — with conflict guards and local persistence for demos.
 
-- Kanban-style order board with stages (New → In Progress → Ready → Served)
-- Order detail drawer, history, and undo for recent stage moves
-- Add new orders via modal; assign chefs and track versions
-- Multiple views: Board, Orders table, Chefs, History, Analytics, Settings
-- Local persistence via `localStorage` (demo data included)
+> Milestone 1 (M1) static skeleton: frontend-only with demo auth and `localStorage` persistence. Real-time Socket.IO sync is planned for later milestones.
 
-## Tech
+## What’s new in M1
 
-- React + TypeScript
-- Vite dev server
-- Tailwind CSS
-
-## Local development
-
-Install dependencies and run the dev server (uses Git Bash):
-
-```bash
-npm install
-npm run dev
-```
-
-Open http://localhost:3000/ in your browser.
-
-## Build for production
-
-```bash
-npm run build
-npm start
-```
-
-## Useful files
-
-- `src/` — React source (components in `src/components`)
-- `data/` — demo `INITIAL_HARDCODED_ORDERS` and `menu` data
-- `index.html` — app entry point
-
-## Contributing
-
-PRs welcome. Please run `npm run lint` before committing.
-
-## License
-
-Apache-2.0# KitchenSync
-
-Real-time kitchen order management board for waiters and chefs with live synchronization, urgency timers, conflict guards, and order-stage history.
+- **Dual boards** — pick Kitchen or Delivery after login; switch anytime
+- **Board-aware UI** — header, sidebar, accents, and views adapt per board
+- **Delivery domain** — customer, address, distance, rider, ETA, payment, order total
+- **Shared conflict guard** — version / last-updated checks on both boards (with demo simulate)
+- **Separate persistence** — kitchen and delivery orders saved under different `localStorage` keys
+- **Auth + routing** — login / signup pages and a board picker (`#/login`, `#/signup`, `#/select-board`)
 
 ## Features
 
-- Visual Kanban-style board for kitchen orders
-- Create, assign, move, and serve orders
-- Local persistence via `localStorage` for demo purposes
-- Multiple views: board, table list, chefs, history, analytics, and settings
-- Undo recent stage moves
+### Kitchen board
+- Kanban stages: **New → Cooking → Ready → Served**
+- Assign chefs, table numbers, special notes, and menu items
+- Order detail drawer with stage history and undo for recent moves
+- Views: Board, Orders table, Chefs, History, Analytics, Settings
 
-## Tech Stack
+### Delivery board
+- Kanban stages: **Preparing → Ready for Pickup → Out for Delivery → Delivered**
+- Assign riders; track ETA / lateness, payment method, and distance
+- Delivery-specific detail drawer, table view, history, and analytics
+- Riders view for dispatch staffing
 
-- Vite + React + TypeScript
-- Tailwind CSS for styling
-- Socket.IO (client/server-ready hooks)
+### Shared
+- Demo login / signup flow (hash-based routes)
+- Urgency / timer cues on aging orders
+- Conflict guard when an order was updated by someone else
+- Filters, search, and “mine” view modes where applicable
+- Bottom status bar for live board context
+
+## Tech stack
+
+- React 19 + TypeScript
+- Vite
+- Tailwind CSS v4
+- Motion (animations)
+- Lucide icons
+- Socket.IO packages present for upcoming real-time work (not wired as the primary sync layer in M1)
 
 ## Quickstart
 
-Install dependencies:
-
 ```bash
 npm install
-```
-
-Run the dev server (opens at `http://localhost:3000`):
-
-```bash
 npm run dev
 ```
 
-Build for production:
+Open [http://localhost:3000/](http://localhost:3000/).
+
+### Production build
 
 ```bash
 npm run build
+npm start   # vite preview on port 3000
 ```
 
-Preview production build:
+### Lint / typecheck
 
 ```bash
-npm start
+npm run lint
 ```
 
-Available npm scripts are defined in `package.json` (e.g. `dev`, `build`, `start`, `lint`).
+## Project structure
 
-## Development Notes
+```
+src/
+  App.tsx                 # routing, dual-board state, persistence
+  components/             # kitchen + delivery UI
+  pages/                  # Login, Signup, SelectBoard
+  data/                   # demo users, menu, seed orders
+  hooks/                  # conflict guard, update flash
+  lib/boardConfig.ts      # stages + board accents
+  types.ts                # Order, DeliveryOrder, roles, stages
+```
 
-- The demo uses a hardcoded set of demo users and initial orders located under `src/data/`.
-- Orders are saved to `localStorage` under the key `kitchensync_orders_v1`.
-- Components are in `src/components/` and the main app entry is `src/App.tsx`.
+### localStorage keys
 
-## Contributing
+| Key | Purpose |
+| --- | --- |
+| `kitchensync_orders_kitchen_v1` | Kitchen orders |
+| `kitchensync_orders_delivery_v1` | Delivery orders |
+| `kitchensync_active_board_v1` | Last selected board |
+| `kitchensync_orders_v1` | Legacy single-board key (migrated if present) |
 
-1. Fork the repository
-2. Create a branch for your feature/fix
-3. Open a pull request with a clear description
+## Demo notes
+
+- Uses hardcoded demo users / riders and seed orders under `src/data/`.
+- Designed as a local-first M1 skeleton for coursework demos and UI review.
+- Backend auth, multi-user Socket.IO sync, and production persistence are out of scope for this milestone.
 
 ## License
 
-This project does not include a license file. Add one (for example `MIT`) if you plan to publish it publicly.
-
----
-
-_Generated and updated locally on your machine._
- # KitchenSync
-
- A lightweight, local-first kitchen order board and management UI built with React + Vite.
-
- ## Features
-
- - Kanban-style order board with stages (New → Preparing → Ready → Served)
- - Create, assign, move, undo, and delete orders
- - Multiple views: Board, Orders table, Chefs, History, Analytics, Settings
- - Local persistence via `localStorage` for quick demos
-
- ## Built with
-
- - React 19
- - Vite
- - TypeScript
- - Tailwind CSS
-
- ## Quickstart
-
- Install dependencies and run the dev server (opens at port 3000):
-
- ```bash
- npm install
- npm run dev
- ```
-
- Open http://localhost:3000/ in your browser.
-
- To build for production:
-
- ```bash
- npm run build
- npm start   # runs `vite preview` on port 3000
- ```
-
- ## Project structure
-
- - `src/` — application source
- - `src/components` — React UI components
- - `src/data` — demo data and initial orders
- - `index.html`, `vite.config.ts` — Vite entry and config
-
- ## Contributing
-
- 1. Fork or clone this repository
- 2. Create a branch for your feature: `git checkout -b feat/your-feature`
- 3. Make changes, run the dev server, and open a pull request
-
- ## Notes
-
- - This app is intentionally local-first and uses `localStorage` for demo orders.
- - If you want a backend or real-time syncing, add an API server and replace the local persistence layer.
-
- ## License
-
- MIT
+Apache-2.0
