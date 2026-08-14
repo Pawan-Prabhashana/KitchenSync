@@ -42,6 +42,7 @@ import { INITIAL_HARDCODED_ORDERS } from './data/initialOrders';
 import { INITIAL_HARDCODED_DELIVERY_ORDERS } from './data/initialDeliveryOrders';
 import { getNextKitchenStage, getNextDeliveryStage } from './lib/boardConfig';
 import { useConflictGuard } from './hooks/useConflictGuard';
+import { api, ApiError, getToken, getCachedUser, clearSession } from './lib/api';
 
 const KITCHEN_ORDERS_KEY = 'kitchensync_orders_kitchen_v1';
 const DELIVERY_ORDERS_KEY = 'kitchensync_orders_delivery_v1';
@@ -96,13 +97,15 @@ export default function App() {
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [boardType, setBoardType] = useState<BoardType | null>(() => loadActiveBoard());
+  // True once we've attempted to restore a session from a stored JWT.
+  const [sessionRestored, setSessionRestored] = useState<boolean>(false);
 
-  // If not authenticated, redirect to login on first load
+  // If not authenticated (after we've tried to restore a session), go to login.
   useEffect(() => {
-    if (!currentUser && (window.location.hash === '' || window.location.hash === '#')) {
+    if (sessionRestored && !currentUser && (window.location.hash === '' || window.location.hash === '#')) {
       window.location.hash = '#/login';
     }
-  }, [currentUser]);
+  }, [currentUser, sessionRestored]);
 
   // Authenticated but no board → board picker
   useEffect(() => {
@@ -121,7 +124,9 @@ export default function App() {
   const [deliveryOrders, setDeliveryOrders] = useState<DeliveryOrder[]>(loadDeliveryOrders);
 
   const [activeUsersCount] = useState<number>(6);
-  const [isConnected] = useState<boolean>(true);
+  // Reflects live API reachability. localStorage acts as an offline cache; when a
+  // request fails we surface it here (BottomStatusBar) rather than losing work.
+  const [isConnected, setIsConnected] = useState<boolean>(true);
 
   const [activeTab, setActiveTab] = useState<string>('board');
   const [filters, setFilters] = useState<FilterOptions>({
@@ -148,6 +153,65 @@ export default function App() {
 
   const kitchenConflict = useConflictGuard<Order>();
   const deliveryConflict = useConflictGuard<DeliveryOrder>();
+
+  /**
+   * Reconcile local state with the API (authoritative). localStorage has already
+   * hydrated state instantly; this replaces it with server truth when reachable,
+   * and leaves the cache untouched (marking us offline) when the API is down.
+   */
+  const reloadFromApi = async () => {
+    try {
+      const [srvOrders, srvDeliveries] = await Promise.all([
+        api.listOrders(),
+        api.listDeliveries()
+      ]);
+      setOrders(srvOrders);
+      setDeliveryOrders(srvDeliveries);
+      setIsConnected(true);
+    } catch (err) {
+      // Network down → keep the localStorage cache and surface offline status.
+      if (err instanceof ApiError && err.isNetwork) setIsConnected(false);
+      else if (err instanceof ApiError && err.status === 401) {
+        clearSession();
+        setCurrentUser(null);
+      }
+    }
+  };
+
+  // Restore the session from a stored JWT on first load (hydrate from cache, then
+  // confirm with /me), so a refresh keeps the user signed in.
+  useEffect(() => {
+    const token = getToken();
+    if (!token) {
+      setSessionRestored(true);
+      return;
+    }
+    const cached = getCachedUser();
+    if (cached) setCurrentUser(cached);
+    api
+      .me()
+      .then(user => {
+        setCurrentUser(user);
+        setIsConnected(true);
+      })
+      .catch(err => {
+        if (err instanceof ApiError && err.status === 401) {
+          clearSession();
+          setCurrentUser(null);
+        } else {
+          setIsConnected(false); // offline: keep the cached user
+        }
+      })
+      .finally(() => setSessionRestored(true));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Whenever we have a user, pull the latest orders/deliveries from the API.
+  useEffect(() => {
+    if (!currentUser) return;
+    reloadFromApi();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser]);
 
   // Persist kitchen orders
   useEffect(() => {
@@ -213,6 +277,69 @@ export default function App() {
     window.location.hash = '#/select-board';
   };
 
+  // ─── API sync helpers ─────────────────────────────────────────────────────
+
+  /**
+   * Reconcile a kitchen mutation with the server after an optimistic local update.
+   * - success: replace local copy with the authoritative server record.
+   * - 409 (a real second client won the race): adopt the server's copy on the
+   *   board and raise the conflict banner via the same guard the demo uses.
+   * - network failure: keep the optimistic local change (cached) and go offline.
+   */
+  const syncKitchen = async (id: string, call: Promise<Order>) => {
+    try {
+      const server = await call;
+      setOrders(prev => prev.map(o => (o.id === id ? server : o)));
+      kitchenConflict.commit(server);
+      setSelectedOrder(sel => (sel && sel.id === id ? server : sel));
+      setIsConnected(true);
+    } catch (err) {
+      if (err instanceof ApiError && err.isConflict && err.current) {
+        try {
+          const latest = await api.getOrder(id);
+          setOrders(prev => prev.map(o => (o.id === id ? latest : o)));
+        } catch {
+          /* ignore refetch failure */
+        }
+        kitchenConflict.raise({
+          orderId: id,
+          updatedBy: err.current.lastUpdatedBy,
+          updatedAt: err.current.lastUpdatedAt
+        });
+        setIsConnected(true);
+      } else if (err instanceof ApiError && err.isNetwork) {
+        setIsConnected(false);
+      }
+    }
+  };
+
+  const syncDelivery = async (id: string, call: Promise<DeliveryOrder>) => {
+    try {
+      const server = await call;
+      setDeliveryOrders(prev => prev.map(o => (o.id === id ? server : o)));
+      deliveryConflict.commit(server);
+      setSelectedDeliveryOrder(sel => (sel && sel.id === id ? server : sel));
+      setIsConnected(true);
+    } catch (err) {
+      if (err instanceof ApiError && err.isConflict && err.current) {
+        try {
+          const latest = await api.getDelivery(id);
+          setDeliveryOrders(prev => prev.map(o => (o.id === id ? latest : o)));
+        } catch {
+          /* ignore refetch failure */
+        }
+        deliveryConflict.raise({
+          orderId: id,
+          updatedBy: err.current.lastUpdatedBy,
+          updatedAt: err.current.lastUpdatedAt
+        });
+        setIsConnected(true);
+      } else if (err instanceof ApiError && err.isNetwork) {
+        setIsConnected(false);
+      }
+    }
+  };
+
   // ─── Kitchen handlers ─────────────────────────────────────────────────────
 
   const handleMoveStage = (orderId: string, toStage: Stage) => {
@@ -251,6 +378,10 @@ export default function App() {
     if (selectedOrder?.id === orderId) {
       setSelectedOrder(updatedOrder);
     }
+
+    // Persist to the API (authoritative). expectedVersion = the version we had
+    // before the local bump, so a stale write returns 409.
+    void syncKitchen(orderId, api.updateOrder(orderId, { stage: toStage, expectedVersion: existingOrder.version }));
   };
 
   const handleAssignChef = (orderId: string, chefName: string) => {
@@ -275,6 +406,8 @@ export default function App() {
     if (selectedOrder?.id === orderId) {
       setSelectedOrder(updatedOrder);
     }
+
+    void syncKitchen(orderId, api.updateOrder(orderId, { chef: chefName, expectedVersion: existingOrder.version }));
   };
 
   const handleCreateOrder = (orderData: {
@@ -312,9 +445,28 @@ export default function App() {
       ]
     };
 
-    setOrders(prev => [newOrder, ...prev]);
-    setLastActivity({ user: newOrder.waiter, time: 'just now' });
     setIsNewOrderModalOpen(false);
+
+    // Server-first: the API assigns the canonical id. If it's unreachable, fall
+    // back to the locally-built order so the ticket isn't lost while offline.
+    void (async () => {
+      try {
+        const created = await api.createOrder({
+          tableNumber: orderData.tableNumber,
+          items: orderData.items,
+          specialNotes: orderData.specialNotes,
+          waiterName,
+          chefName: orderData.chefName
+        });
+        setOrders(prev => [created, ...prev]);
+        setLastActivity({ user: created.waiter, time: 'just now' });
+        setIsConnected(true);
+      } catch (err) {
+        setOrders(prev => [newOrder, ...prev]);
+        setLastActivity({ user: newOrder.waiter, time: 'just now' });
+        if (err instanceof ApiError && err.isNetwork) setIsConnected(false);
+      }
+    })();
   };
 
   const handleDeleteOrder = (orderId: string) => {
@@ -323,6 +475,14 @@ export default function App() {
       setSelectedOrder(null);
       kitchenConflict.clear();
     }
+    void (async () => {
+      try {
+        await api.deleteOrder(orderId);
+        setIsConnected(true);
+      } catch (err) {
+        if (err instanceof ApiError && err.isNetwork) setIsConnected(false);
+      }
+    })();
   };
 
   const handleUndoMove = () => {
@@ -330,6 +490,7 @@ export default function App() {
     const [lastMove, ...remainingStack] = undoStack;
     setUndoStack(remainingStack);
     const nowStr = nowTime();
+    const existing = orders.find(o => o.id === lastMove.orderId);
 
     setOrders(prev =>
       prev.map(o => {
@@ -346,6 +507,13 @@ export default function App() {
         return reverted;
       })
     );
+
+    if (existing) {
+      void syncKitchen(
+        lastMove.orderId,
+        api.updateOrder(lastMove.orderId, { stage: lastMove.previousStage, expectedVersion: existing.version })
+      );
+    }
   };
 
   const handleSelectKitchenOrder = (order: Order) => {
@@ -355,11 +523,22 @@ export default function App() {
 
   const handleRefreshKitchenConflict = () => {
     if (!selectedOrder) return;
-    const latest = orders.find(o => o.id === selectedOrder.id);
-    if (latest) {
-      setSelectedOrder(latest);
-      kitchenConflict.resolve(latest);
-    }
+    const id = selectedOrder.id;
+    void (async () => {
+      let latest: Order | null = orders.find(o => o.id === id) || null;
+      try {
+        latest = await api.getOrder(id);
+        const server = latest;
+        setOrders(prev => prev.map(o => (o.id === id ? server : o)));
+        setIsConnected(true);
+      } catch (err) {
+        if (err instanceof ApiError && err.isNetwork) setIsConnected(false);
+      }
+      if (latest) {
+        setSelectedOrder(latest);
+        kitchenConflict.resolve(latest);
+      }
+    })();
   };
 
   /**
@@ -449,6 +628,8 @@ export default function App() {
     if (selectedDeliveryOrder?.id === orderId) {
       setSelectedDeliveryOrder(updated);
     }
+
+    void syncDelivery(orderId, api.updateDelivery(orderId, { stage: toStage, expectedVersion: existing.version }));
   };
 
   const handleAssignRider = (orderId: string, riderName: string) => {
@@ -473,6 +654,8 @@ export default function App() {
     if (selectedDeliveryOrder?.id === orderId) {
       setSelectedDeliveryOrder(updated);
     }
+
+    void syncDelivery(orderId, api.updateDelivery(orderId, { rider: riderName, expectedVersion: existing.version }));
   };
 
   const handleCreateDeliveryOrder = (data: {
@@ -521,9 +704,30 @@ export default function App() {
       ]
     };
 
-    setDeliveryOrders(prev => [newOrder, ...prev]);
-    setLastActivity({ user: actor, time: 'just now' });
     setIsNewOrderModalOpen(false);
+
+    void (async () => {
+      try {
+        const created = await api.createDelivery({
+          customerName: data.customerName,
+          address: data.address,
+          distanceKm: data.distanceKm,
+          items: data.items,
+          paymentMethod: data.paymentMethod,
+          orderTotal,
+          etaMinutes: newOrder.etaMinutes,
+          specialNotes: data.specialNotes,
+          riderName: data.riderName
+        });
+        setDeliveryOrders(prev => [created, ...prev]);
+        setLastActivity({ user: created.lastUpdatedBy, time: 'just now' });
+        setIsConnected(true);
+      } catch (err) {
+        setDeliveryOrders(prev => [newOrder, ...prev]);
+        setLastActivity({ user: actor, time: 'just now' });
+        if (err instanceof ApiError && err.isNetwork) setIsConnected(false);
+      }
+    })();
   };
 
   const handleDeleteDeliveryOrder = (orderId: string) => {
@@ -532,6 +736,14 @@ export default function App() {
       setSelectedDeliveryOrder(null);
       deliveryConflict.clear();
     }
+    void (async () => {
+      try {
+        await api.deleteDelivery(orderId);
+        setIsConnected(true);
+      } catch (err) {
+        if (err instanceof ApiError && err.isNetwork) setIsConnected(false);
+      }
+    })();
   };
 
   const handleUndoDeliveryMove = () => {
@@ -539,6 +751,7 @@ export default function App() {
     const [lastMove, ...remaining] = deliveryUndoStack;
     setDeliveryUndoStack(remaining);
     const nowStr = nowTime();
+    const existing = deliveryOrders.find(o => o.id === lastMove.orderId);
 
     setDeliveryOrders(prev =>
       prev.map(o => {
@@ -555,6 +768,13 @@ export default function App() {
         return reverted;
       })
     );
+
+    if (existing) {
+      void syncDelivery(
+        lastMove.orderId,
+        api.updateDelivery(lastMove.orderId, { stage: lastMove.previousStage, expectedVersion: existing.version })
+      );
+    }
   };
 
   const handleSelectDeliveryOrder = (order: DeliveryOrder) => {
@@ -564,11 +784,22 @@ export default function App() {
 
   const handleRefreshDeliveryConflict = () => {
     if (!selectedDeliveryOrder) return;
-    const latest = deliveryOrders.find(o => o.id === selectedDeliveryOrder.id);
-    if (latest) {
-      setSelectedDeliveryOrder(latest);
-      deliveryConflict.resolve(latest);
-    }
+    const id = selectedDeliveryOrder.id;
+    void (async () => {
+      let latest: DeliveryOrder | null = deliveryOrders.find(o => o.id === id) || null;
+      try {
+        latest = await api.getDelivery(id);
+        const server = latest;
+        setDeliveryOrders(prev => prev.map(o => (o.id === id ? server : o)));
+        setIsConnected(true);
+      } catch (err) {
+        if (err instanceof ApiError && err.isNetwork) setIsConnected(false);
+      }
+      if (latest) {
+        setSelectedDeliveryOrder(latest);
+        deliveryConflict.resolve(latest);
+      }
+    })();
   };
 
   const handleSimulateDeliveryConflict = (orderId: string) => {
