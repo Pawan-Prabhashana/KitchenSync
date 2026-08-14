@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { User, Role } from '../types';
+import { api, ApiError } from '../lib/api';
 
 interface SignupPageProps {
   onAuthSuccess: (user: User) => void;
@@ -8,18 +9,29 @@ interface SignupPageProps {
 export const SignupPage: React.FC<SignupPageProps> = ({ onAuthSuccess }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [role, setRole] = useState<Role>('waiter');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newUser: User = {
-      id: `u_${Date.now()}`,
-      name: name || email.split('@')[0] || 'User',
-      email: email,
-      role,
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
-    } as User;
-    onAuthSuccess(newUser);
+    setBusy(true);
+    setError('');
+    try {
+      const { user } = await api.register({ name, email, password, role });
+      onAuthSuccess(user);
+    } catch (err) {
+      if (err instanceof ApiError && err.isNetwork) {
+        setError('Cannot reach the API. Is the server running on port 4000? (npm run server)');
+      } else if (err instanceof ApiError && err.code === 'EMAIL_TAKEN') {
+        setError('An account with that email already exists. Try signing in.');
+      } else {
+        setError(err instanceof Error ? err.message : 'Registration failed.');
+      }
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -54,6 +66,19 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onAuthSuccess }) => {
           </div>
 
           <div>
+            <label className="text-xs font-medium text-slate-700">Password</label>
+            <input
+              type="password"
+              required
+              minLength={4}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="At least 4 characters"
+              className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            />
+          </div>
+
+          <div>
             <label className="text-xs font-medium text-slate-700">Role</label>
             <div className="flex gap-3 mt-2 flex-wrap">
               <label className="text-sm">
@@ -71,7 +96,14 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onAuthSuccess }) => {
             </div>
           </div>
 
-          <button className="w-full py-2.5 bg-emerald-600 text-white font-bold rounded-xl">Create account</button>
+          {error && <div className="text-xs text-red-600">{error}</div>}
+
+          <button
+            disabled={busy}
+            className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold rounded-xl transition-colors"
+          >
+            {busy ? 'Creating…' : 'Create account'}
+          </button>
         </form>
 
         <div className="mt-4 text-center text-xs text-slate-500">

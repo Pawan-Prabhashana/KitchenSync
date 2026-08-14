@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Shield, Sparkles } from 'lucide-react';
 import { User, Role } from '../types';
 import { DEMO_USERS, DEMO_RIDERS } from '../data/menu';
+import { api, ApiError, DEMO_PASSWORD } from '../lib/api';
 
 interface AuthModalProps {
   currentUser: User | null;
@@ -17,40 +18,48 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [isRegistering, setIsRegistering] = useState<boolean>(false);
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [role, setRole] = useState<Role>('chef');
+  const [error, setError] = useState<string>('');
+  const [busy, setBusy] = useState<boolean>(false);
 
-  const handleQuickLogin = (user: User) => {
-    onUserChanged(user);
-    onClose();
+  const describeError = (err: unknown): string => {
+    if (err instanceof ApiError && err.isNetwork) return 'Cannot reach the API (start it with npm run server).';
+    if (err instanceof ApiError && err.status === 401) return 'Invalid email or password.';
+    if (err instanceof ApiError && err.code === 'EMAIL_TAKEN') return 'That email is already registered.';
+    return err instanceof Error ? err.message : 'Authentication failed.';
   };
 
-  const handleCustomAuth = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isRegistering) {
-      const newUser: User = {
-        id: `u_${Date.now()}`,
-        name: name || 'Staff Member',
-        email: email || 'staff@kitchensync.com',
-        role: role,
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
-      };
-      onUserChanged(newUser);
-    } else {
-      const existing = DEMO_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
-      if (existing) {
-        onUserChanged(existing);
-      } else {
-        const customUser: User = {
-          id: `u_${Date.now()}`,
-          name: email.split('@')[0] || 'User',
-          email: email,
-          role: role,
-          avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
-        };
-        onUserChanged(customUser);
-      }
+  // Quick-login switches persona by logging in through the API with the seeded demo password.
+  const handleQuickLogin = async (user: User) => {
+    setBusy(true);
+    setError('');
+    try {
+      const { user: authed } = await api.login(user.email, DEMO_PASSWORD);
+      onUserChanged(authed);
+      onClose();
+    } catch (err) {
+      setError(describeError(err));
+    } finally {
+      setBusy(false);
     }
-    onClose();
+  };
+
+  const handleCustomAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    try {
+      const { user } = isRegistering
+        ? await api.register({ name: name || 'Staff Member', email, password, role })
+        : await api.login(email, password);
+      onUserChanged(user);
+      onClose();
+    } catch (err) {
+      setError(describeError(err));
+    } finally {
+      setBusy(false);
+    }
   };
 
   const chefs = DEMO_USERS.filter(u => u.role === 'chef');
@@ -193,6 +202,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               />
             </div>
 
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Password</label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={isRegistering ? 'Choose a password' : `Demo: ${DEMO_PASSWORD}`}
+                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              />
+            </div>
+
             {isRegistering && (
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Select Role</label>
@@ -231,11 +252,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
             )}
 
+            {error && <div className="text-xs text-red-600 font-medium">{error}</div>}
+
             <button
               type="submit"
-              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all"
+              disabled={busy}
+              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 disabled:opacity-60 text-white font-bold text-xs rounded-xl shadow-xs transition-all"
             >
-              {isRegistering ? 'Register Staff Account' : 'Switch Staff Persona'}
+              {busy ? 'Please wait…' : isRegistering ? 'Register Staff Account' : 'Sign in as this user'}
             </button>
 
             <div className="text-center">
