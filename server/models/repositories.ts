@@ -30,7 +30,8 @@ export interface UserRepository {
  * history entry when the stage changes (see `utils/versioning.ts`).
  */
 export interface CrudRepository<T> {
-  findAll(): Promise<T[]>;
+  /** All entities, optionally scoped to a single branch. */
+  findAll(branchId?: string): Promise<T[]>;
   findById(id: string): Promise<T | null>;
   create(entity: T): Promise<T>;
   update(id: string, patch: Partial<T>, actor: Actor, expectedVersion?: number): Promise<T>;

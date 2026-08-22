@@ -18,9 +18,10 @@ function actorFrom(req: Request): Actor {
   return { name: u.name, role: u.role };
 }
 
-/** GET /api/deliveries */
-export async function listDeliveries(_req: Request, res: Response): Promise<void> {
-  res.json(await deliveryRepository.findAll());
+/** GET /api/deliveries?branchId=... */
+export async function listDeliveries(req: Request, res: Response): Promise<void> {
+  const branchId = typeof req.query.branchId === 'string' ? req.query.branchId : undefined;
+  res.json(await deliveryRepository.findAll(branchId));
 }
 
 /** GET /api/deliveries/:id */
@@ -33,9 +34,10 @@ export async function getDelivery(req: Request, res: Response): Promise<void> {
 /** POST /api/deliveries */
 export async function createDelivery(req: Request, res: Response): Promise<void> {
   const {
-    customerName, address, distanceKm, items, paymentMethod,
+    branchId, customerName, address, distanceKm, items, paymentMethod,
     orderTotal, etaMinutes, specialNotes, riderName
   } = req.body as {
+    branchId: string;
     customerName: string;
     address: string;
     distanceKm: number;
@@ -60,6 +62,7 @@ export async function createDelivery(req: Request, res: Response): Promise<void>
 
   const order: DeliveryOrder = {
     id: makeDeliveryId(),
+    branchId,
     customerName,
     address,
     distanceKm: distance,

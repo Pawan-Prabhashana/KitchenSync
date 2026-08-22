@@ -7,8 +7,6 @@ import { makeUserId } from '../utils/ids';
 import { AuthResponse, Role, StoredUser, User } from '../models/types';
 
 const VALID_ROLES: Role[] = ['waiter', 'chef', 'admin', 'rider'];
-const DEFAULT_AVATAR =
-  'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80';
 
 function toPublic(u: StoredUser): User {
   const { passwordHash: _hash, ...pub } = u;
@@ -23,8 +21,8 @@ function issue(user: StoredUser): AuthResponse {
 
 /** POST /api/auth/register */
 export async function register(req: Request, res: Response): Promise<void> {
-  const { name, email, password, role, avatar } = req.body as {
-    name: string; email: string; password: string; role: Role; avatar?: string;
+  const { name, email, password, role } = req.body as {
+    name: string; email: string; password: string; role: Role;
   };
 
   if (!VALID_ROLES.includes(role)) {
@@ -42,7 +40,6 @@ export async function register(req: Request, res: Response): Promise<void> {
     name: name.trim(),
     email: email.trim().toLowerCase(),
     role,
-    avatar: avatar || DEFAULT_AVATAR,
     passwordHash
   };
   await userRepository.create(stored);

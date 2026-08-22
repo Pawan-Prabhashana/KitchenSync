@@ -3,7 +3,7 @@ import { Versioned, Actor } from '../../models/types';
 import { NotFoundError, VersionConflictError } from '../../utils/httpError';
 import { bumpVersion } from '../../utils/versioning';
 
-type Staged = Versioned & { stage: string; history: Array<{ id: string; stage: string; timestamp: string; user: string; role: string }> };
+type Staged = Versioned & { branchId: string; stage: string; history: Array<{ id: string; stage: string; timestamp: string; user: string; role: string }> };
 
 /**
  * Generic array-backed CRUD repository shared by the kitchen and delivery stores.
@@ -13,8 +13,9 @@ type Staged = Versioned & { stage: string; history: Array<{ id: string; stage: s
 export class MemoryCrudRepository<T extends Staged> implements CrudRepository<T> {
   constructor(private readonly getList: () => T[]) {}
 
-  async findAll(): Promise<T[]> {
-    return [...this.getList()];
+  async findAll(branchId?: string): Promise<T[]> {
+    const list = this.getList();
+    return branchId ? list.filter(o => o.branchId === branchId) : [...list];
   }
 
   async findById(id: string): Promise<T | null> {

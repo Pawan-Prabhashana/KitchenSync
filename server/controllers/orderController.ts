@@ -12,9 +12,10 @@ function actorFrom(req: Request): Actor {
   return { name: u.name, role: u.role };
 }
 
-/** GET /api/orders */
-export async function listOrders(_req: Request, res: Response): Promise<void> {
-  res.json(await orderRepository.findAll());
+/** GET /api/orders?branchId=... */
+export async function listOrders(req: Request, res: Response): Promise<void> {
+  const branchId = typeof req.query.branchId === 'string' ? req.query.branchId : undefined;
+  res.json(await orderRepository.findAll(branchId));
 }
 
 /** GET /api/orders/:id */
@@ -26,7 +27,8 @@ export async function getOrder(req: Request, res: Response): Promise<void> {
 
 /** POST /api/orders */
 export async function createOrder(req: Request, res: Response): Promise<void> {
-  const { tableNumber, items, specialNotes, waiterName, chefName } = req.body as {
+  const { branchId, tableNumber, items, specialNotes, waiterName, chefName } = req.body as {
+    branchId: string;
     tableNumber: string;
     items: OrderItem[];
     specialNotes?: string;
@@ -44,6 +46,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
 
   const order: Order = {
     id: makeOrderId(),
+    branchId,
     tableNumber,
     items,
     specialNotes,

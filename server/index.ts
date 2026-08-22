@@ -6,7 +6,7 @@ const app = createApp();
 
 app.listen(env.port, () => {
   console.log(`\n  KitchenSync API listening on http://localhost:${env.port}`);
-  console.log(`  CORS origin: ${env.corsOrigin}`);
+  console.log(`  CORS origins: ${env.corsOrigins.join(', ')}`);
   console.log(
     `  Seeded ${store.users.length} users, ${store.orders.length} kitchen orders, ${store.deliveries.length} deliveries`
   );

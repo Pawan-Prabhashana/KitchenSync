@@ -11,7 +11,17 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 export function createApp() {
   const app = express();
 
-  app.use(cors({ origin: env.corsOrigin, credentials: true }));
+  const allowAll = env.corsOrigins.includes('*');
+  app.use(
+    cors({
+      origin(origin, cb) {
+        // Allow non-browser clients (curl/server-to-server) which send no Origin.
+        if (!origin || allowAll || env.corsOrigins.includes(origin)) return cb(null, true);
+        return cb(null, false);
+      },
+      credentials: true
+    })
+  );
   app.use(express.json());
 
   app.use('/api', apiRoutes);

@@ -1,8 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { Order, DeliveryOrder, StoredUser } from '../../models/types';
 import { DEMO_USERS, DEMO_RIDERS } from '../../../src/data/menu';
-import { INITIAL_HARDCODED_ORDERS } from '../../../src/data/initialOrders';
-import { INITIAL_HARDCODED_DELIVERY_ORDERS } from '../../../src/data/initialDeliveryOrders';
+import { seedAllOrders, seedAllDeliveries } from '../../utils/branchSeed';
 
 /**
  * Shared password for every seeded demo account so the existing quick-login
@@ -30,13 +29,12 @@ class MemoryStore {
       name: u.name,
       email: u.email,
       role: u.role,
-      avatar: u.avatar,
       passwordHash: hash
     }));
 
-    // Deep-clone the fixtures so mutations never leak back into the imported arrays.
-    this.orders = structuredClone(INITIAL_HARDCODED_ORDERS);
-    this.deliveries = structuredClone(INITIAL_HARDCODED_DELIVERY_ORDERS);
+    // Seed every branch so no location is empty on first run.
+    this.orders = seedAllOrders();
+    this.deliveries = seedAllDeliveries();
   }
 }
 
