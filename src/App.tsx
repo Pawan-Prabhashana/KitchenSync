@@ -41,8 +41,7 @@ import {
 } from './types';
 import { DEMO_USERS, DEMO_RIDERS, MENU_ITEMS } from './data/menu';
 import { BRANCHES, findBranch } from './data/branches';
-import { INITIAL_HARDCODED_ORDERS } from './data/initialOrders';
-import { INITIAL_HARDCODED_DELIVERY_ORDERS } from './data/initialDeliveryOrders';
+import { seedKitchenForBranch, seedDeliveryForBranch } from './data/branchSeeds';
 import { getNextKitchenStage, getNextDeliveryStage } from './lib/boardConfig';
 import { useConflictGuard } from './hooks/useConflictGuard';
 import { api, ApiError, getToken, getCachedUser, clearSession } from './lib/api';
@@ -61,7 +60,7 @@ function loadKitchenOrders(branchId: string): Order[] {
   } catch {
     console.warn('Could not read kitchen orders from localStorage');
   }
-  return INITIAL_HARDCODED_ORDERS.map(o => ({ ...o, branchId }));
+  return seedKitchenForBranch(branchId);
 }
 
 function loadDeliveryOrders(branchId: string): DeliveryOrder[] {
@@ -71,7 +70,7 @@ function loadDeliveryOrders(branchId: string): DeliveryOrder[] {
   } catch {
     console.warn('Could not read delivery orders from localStorage');
   }
-  return INITIAL_HARDCODED_DELIVERY_ORDERS.map(o => ({ ...o, branchId }));
+  return seedDeliveryForBranch(branchId);
 }
 
 function loadActiveBoard(): BoardType | null {
