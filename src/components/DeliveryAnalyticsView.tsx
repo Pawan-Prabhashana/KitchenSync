@@ -29,65 +29,65 @@ export const DeliveryAnalyticsView: React.FC<DeliveryAnalyticsViewProps> = ({ or
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <div className="border-b border-slate-200 pb-4">
-        <h2 className="text-xl font-bold text-slate-900">Delivery Operations Analytics</h2>
-        <p className="text-xs text-slate-500">Dispatch throughput, on-route volume, and top delivery dishes</p>
+      <div className="border-b border-hairline pb-4">
+        <h2 className="text-xl font-bold text-ink">Delivery Operations Analytics</h2>
+        <p className="text-xs text-muted">Dispatch throughput, on-route volume, and top delivery dishes</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+        <div className="bg-surface border border-hairline rounded-2xl p-4 shadow-soft">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-500 uppercase">Total Tickets</span>
+            <span className="text-xs font-bold text-muted uppercase">Total Tickets</span>
             <span className="p-2 bg-blue-50 text-blue-600 rounded-xl"><BarChart3 className="w-4 h-4" /></span>
           </div>
-          <div className="text-2xl font-black text-slate-900">{total}</div>
-          <div className="text-[11px] text-slate-400 mt-1">Active + delivered today</div>
+          <div className="text-2xl font-black text-ink">{total}</div>
+          <div className="text-[11px] text-faint mt-1">Active + delivered today</div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+        <div className="bg-surface border border-hairline rounded-2xl p-4 shadow-soft">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-500 uppercase">Out for Delivery</span>
-            <span className="p-2 bg-indigo-50 text-indigo-600 rounded-xl"><Bike className="w-4 h-4" /></span>
+            <span className="text-xs font-bold text-muted uppercase">Out for Delivery</span>
+            <span className="p-2 bg-sky-chip/50 text-sky-ink rounded-xl"><Bike className="w-4 h-4" /></span>
           </div>
-          <div className="text-2xl font-black text-indigo-600">{enRoute}</div>
-          <div className="text-[11px] text-slate-400 mt-1">Riders currently en route</div>
+          <div className="text-2xl font-black text-sky-ink">{enRoute}</div>
+          <div className="text-[11px] text-faint mt-1">Riders currently en route</div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+        <div className="bg-surface border border-hairline rounded-2xl p-4 shadow-soft">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-500 uppercase">Avg ETA Window</span>
+            <span className="text-xs font-bold text-muted uppercase">Avg ETA Window</span>
             <span className="p-2 bg-amber-50 text-amber-600 rounded-xl"><Clock className="w-4 h-4" /></span>
           </div>
           <div className="text-2xl font-black text-amber-700">35 min</div>
           <div className="text-[11px] text-amber-600 font-semibold mt-1">Target delivery window</div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+        <div className="bg-surface border border-hairline rounded-2xl p-4 shadow-soft">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-500 uppercase">Delivered</span>
-            <span className="p-2 bg-slate-100 text-slate-700 rounded-xl"><CheckCircle className="w-4 h-4" /></span>
+            <span className="text-xs font-bold text-muted uppercase">Delivered</span>
+            <span className="p-2 bg-canvas text-ink rounded-xl"><CheckCircle className="w-4 h-4" /></span>
           </div>
-          <div className="text-2xl font-black text-slate-800">{delivered}</div>
-          <div className="text-[11px] text-slate-400 mt-1">${revenue.toFixed(0)} revenue tracked</div>
+          <div className="text-2xl font-black text-ink">{delivered}</div>
+          <div className="text-[11px] text-faint mt-1">${revenue.toFixed(0)} revenue tracked</div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
-          <h3 className="text-sm font-bold text-slate-900">Current Delivery Distribution</h3>
+        <div className="bg-surface border border-hairline rounded-2xl p-5 shadow-soft space-y-4">
+          <h3 className="text-sm font-bold text-ink">Current Delivery Distribution</h3>
           <div className="space-y-3">
             {[
               { label: 'Preparing', count: preparing, color: 'bg-blue-500' },
               { label: 'Ready for Pickup', count: pickup, color: 'bg-amber-500' },
-              { label: 'Out for Delivery', count: enRoute, color: 'bg-indigo-500' },
+              { label: 'Out for Delivery', count: enRoute, color: 'bg-sky-chip/500' },
               { label: 'Delivered', count: delivered, color: 'bg-slate-400' }
             ].map(row => (
               <div key={row.label}>
-                <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                <div className="flex justify-between text-xs font-bold text-ink mb-1">
                   <span>{row.label} ({row.count})</span>
                   <span>{pct(row.count)}%</span>
                 </div>
-                <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-2.5 bg-canvas rounded-full overflow-hidden">
                   <div className={`h-full ${row.color}`} style={{ width: `${pct(row.count)}%` }} />
                 </div>
               </div>
@@ -95,8 +95,8 @@ export const DeliveryAnalyticsView: React.FC<DeliveryAnalyticsViewProps> = ({ or
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
-          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+        <div className="bg-surface border border-hairline rounded-2xl p-5 shadow-soft space-y-4">
+          <h3 className="text-sm font-bold text-ink flex items-center gap-2">
             <Package className="w-4 h-4 text-indigo-500" />
             Top Delivery Dishes
           </h3>
@@ -104,15 +104,15 @@ export const DeliveryAnalyticsView: React.FC<DeliveryAnalyticsViewProps> = ({ or
             {sortedItems.map(([name, qty], idx) => (
               <div
                 key={name}
-                className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-xs"
+                className="flex items-center justify-between p-2.5 bg-canvas rounded-xl border border-hairline text-xs"
               >
-                <div className="flex items-center gap-2.5 font-bold text-slate-800">
-                  <span className="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-800 text-[11px] flex items-center justify-center font-mono">
+                <div className="flex items-center gap-2.5 font-bold text-ink">
+                  <span className="w-6 h-6 rounded-lg bg-sky-chip text-sky-ink text-[11px] flex items-center justify-center font-mono">
                     #{idx + 1}
                   </span>
                   <span>{name}</span>
                 </div>
-                <span className="font-mono font-bold text-indigo-700">{qty} orders</span>
+                <span className="font-mono font-bold text-sky-ink">{qty} orders</span>
               </div>
             ))}
           </div>

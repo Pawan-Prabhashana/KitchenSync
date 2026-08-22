@@ -49,35 +49,11 @@ export const Board: React.FC<BoardProps> = ({
     return true;
   });
 
-  const stages: Array<{ id: Stage; label: string; bgHeader: string; borderCol: string; textBadge: string }> = [
-    {
-      id: 'New',
-      label: 'New',
-      bgHeader: 'bg-blue-50/70 border-blue-200 text-blue-900',
-      borderCol: 'border-blue-200/60',
-      textBadge: 'bg-blue-100 text-blue-800'
-    },
-    {
-      id: 'Cooking',
-      label: 'Cooking',
-      bgHeader: 'bg-amber-50/70 border-amber-200 text-amber-900',
-      borderCol: 'border-amber-200/60',
-      textBadge: 'bg-amber-100 text-amber-800'
-    },
-    {
-      id: 'Ready',
-      label: 'Ready',
-      bgHeader: 'bg-emerald-50/70 border-emerald-200 text-emerald-900',
-      borderCol: 'border-emerald-200/60',
-      textBadge: 'bg-emerald-100 text-emerald-800'
-    },
-    {
-      id: 'Served',
-      label: 'Served',
-      bgHeader: 'bg-slate-100/80 border-slate-200 text-slate-800',
-      borderCol: 'border-slate-200',
-      textBadge: 'bg-slate-200 text-slate-700'
-    }
+  const stages: Array<{ id: Stage; label: string; dot: string; textBadge: string }> = [
+    { id: 'New', label: 'New', dot: 'bg-sky-dot', textBadge: 'bg-sky-chip text-sky-ink' },
+    { id: 'Cooking', label: 'Cooking', dot: 'bg-peach-dot', textBadge: 'bg-peach-chip text-peach-ink' },
+    { id: 'Ready', label: 'Ready', dot: 'bg-green-dot', textBadge: 'bg-green-chip text-green-ink' },
+    { id: 'Served', label: 'Served', dot: 'bg-lilac-dot', textBadge: 'bg-lilac-chip text-lilac-ink' }
   ];
 
   const handleDrop = (e: React.DragEvent, toStage: Stage) => {
@@ -99,22 +75,23 @@ export const Board: React.FC<BoardProps> = ({
             onDragOver={(e) => { e.preventDefault(); setDragOverColumn(stage.id); }}
             onDragLeave={() => setDragOverColumn(null)}
             onDrop={(e) => handleDrop(e, stage.id)}
-            className={`flex flex-col rounded-2xl border ${stage.borderCol} bg-slate-50/50 p-2.5 transition-all min-h-[600px] flex-1 min-w-[260px] ${
-              isTarget ? 'ring-2 ring-emerald-500 bg-emerald-50/30' : ''
+            className={`flex flex-col rounded-2xl border p-2.5 transition-all min-h-[600px] flex-1 min-w-[260px] ${
+              isTarget ? 'ring-2 ring-green-dot border-green-dot bg-green-chip/20' : 'border-hairline bg-canvas/40'
             }`}
           >
-            <div className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl border mb-3 shadow-2xs ${stage.bgHeader}`}>
-              <div className="flex items-center gap-2 font-bold text-sm">
+            <div className="flex items-center justify-between px-2 py-2 mb-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+                <span className={`w-2 h-2 rounded-full ${stage.dot}`} />
                 <span>{stage.label}</span>
-                <span className={`px-2 py-0.5 rounded-full text-xs font-mono font-bold ${stage.textBadge}`}>
-                  {columnOrders.length}
-                </span>
               </div>
+              <span className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-semibold ${stage.textBadge}`}>
+                {columnOrders.length}
+              </span>
             </div>
 
             <div className="space-y-3 flex-1">
               {columnOrders.length === 0 ? (
-                <div className="h-32 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center text-xs text-slate-400 font-medium">
+                <div className="h-32 border-2 border-dashed border-hairline rounded-xl flex items-center justify-center text-xs text-faint font-medium">
                   Drop orders here
                 </div>
               ) : (
@@ -139,7 +116,7 @@ export const Board: React.FC<BoardProps> = ({
             {stage.id === 'New' && (
               <button
                 onClick={onOpenNewOrder}
-                className="mt-3 w-full border border-dashed border-slate-300 hover:border-emerald-500 hover:bg-emerald-50/50 text-slate-500 hover:text-emerald-700 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+                className="mt-3 w-full border border-dashed border-hairline hover:border-green-dot hover:bg-green-chip/40 text-muted hover:text-green-ink py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Order</span>
@@ -147,7 +124,7 @@ export const Board: React.FC<BoardProps> = ({
             )}
 
             {stage.id === 'Served' && columnOrders.length > 0 && (
-              <div className="mt-3 text-center text-xs text-slate-500 font-medium py-1.5 bg-slate-100 rounded-xl">
+              <div className="mt-3 text-center text-xs text-muted font-medium py-1.5 bg-canvas rounded-xl">
                 Completed ({columnOrders.length})
               </div>
             )}

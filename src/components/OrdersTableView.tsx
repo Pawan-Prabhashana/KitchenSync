@@ -11,10 +11,10 @@ interface OrdersTableViewProps {
 }
 
 const stageColors: Record<Stage, string> = {
-  New: 'bg-blue-100 text-blue-800',
-  Cooking: 'bg-amber-100 text-amber-800',
-  Ready: 'bg-emerald-100 text-emerald-800',
-  Served: 'bg-slate-100 text-slate-700'
+  New: 'bg-sky-chip text-sky-ink',
+  Cooking: 'bg-peach-chip text-peach-ink',
+  Ready: 'bg-green-chip text-green-ink',
+  Served: 'bg-canvas text-ink'
 };
 
 const advanceLabel: Record<Exclude<Stage, 'New'>, string> = {
@@ -32,23 +32,23 @@ export const OrdersTableView: React.FC<OrdersTableViewProps> = ({
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-4">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">All Orders Table</h2>
-        <p className="text-xs text-slate-500 mt-0.5">List of all current active and completed tickets</p>
+        <h2 className="text-xl font-bold text-ink">All Orders Table</h2>
+        <p className="text-xs text-muted mt-0.5">List of all current active and completed tickets</p>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+      <div className="bg-surface border border-hairline rounded-2xl shadow-soft overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1100px] text-left text-xs border-separate border-spacing-0">
             <thead>
-              <tr className="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
-                <th className="px-4 py-3 border-b border-slate-200 whitespace-nowrap">Order ID</th>
-                <th className="px-4 py-3 border-b border-slate-200 whitespace-nowrap">Table</th>
-                <th className="px-4 py-3 border-b border-slate-200 min-w-[180px]">Items Summary</th>
-                <th className="px-4 py-3 border-b border-slate-200 whitespace-nowrap">Waiter</th>
-                <th className="px-4 py-3 border-b border-slate-200 whitespace-nowrap">Chef</th>
-                <th className="px-4 py-3 border-b border-slate-200 whitespace-nowrap">Placed At</th>
-                <th className="px-4 py-3 border-b border-slate-200 whitespace-nowrap">Stage</th>
-                <th className="px-4 py-3 border-b border-slate-200 whitespace-nowrap text-right w-[260px]">
+              <tr className="bg-canvas text-muted font-bold uppercase text-[10px] tracking-wider">
+                <th className="px-4 py-3 border-b border-hairline whitespace-nowrap">Order ID</th>
+                <th className="px-4 py-3 border-b border-hairline whitespace-nowrap">Table</th>
+                <th className="px-4 py-3 border-b border-hairline min-w-[180px]">Items Summary</th>
+                <th className="px-4 py-3 border-b border-hairline whitespace-nowrap">Waiter</th>
+                <th className="px-4 py-3 border-b border-hairline whitespace-nowrap">Chef</th>
+                <th className="px-4 py-3 border-b border-hairline whitespace-nowrap">Placed At</th>
+                <th className="px-4 py-3 border-b border-hairline whitespace-nowrap">Stage</th>
+                <th className="px-4 py-3 border-b border-hairline whitespace-nowrap text-right w-[260px]">
                   Actions
                 </th>
               </tr>
@@ -59,37 +59,37 @@ export const OrdersTableView: React.FC<OrdersTableViewProps> = ({
                 const itemsLabel = order.items.map(i => `${i.quantity}x ${i.name}`).join(', ');
 
                 return (
-                  <tr key={order.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-4 py-3.5 border-b border-slate-100 font-mono font-bold text-slate-900 whitespace-nowrap align-middle">
+                  <tr key={order.id} className="hover:bg-canvas/80 transition-colors">
+                    <td className="px-4 py-3.5 border-b border-hairline font-mono font-bold text-ink whitespace-nowrap align-middle">
                       {order.id}
                     </td>
-                    <td className="px-4 py-3.5 border-b border-slate-100 font-bold text-slate-800 whitespace-nowrap align-middle">
+                    <td className="px-4 py-3.5 border-b border-hairline font-bold text-ink whitespace-nowrap align-middle">
                       {order.tableNumber}
                     </td>
-                    <td className="px-4 py-3.5 border-b border-slate-100 text-slate-700 align-middle max-w-[220px]">
+                    <td className="px-4 py-3.5 border-b border-hairline text-ink align-middle max-w-[220px]">
                       <span className="block truncate" title={itemsLabel}>{itemsLabel}</span>
                     </td>
-                    <td className="px-4 py-3.5 border-b border-slate-100 text-slate-600 whitespace-nowrap align-middle">
+                    <td className="px-4 py-3.5 border-b border-hairline text-muted whitespace-nowrap align-middle">
                       {order.waiter}
                     </td>
-                    <td className="px-4 py-3.5 border-b border-slate-100 text-slate-600 whitespace-nowrap align-middle">
+                    <td className="px-4 py-3.5 border-b border-hairline text-muted whitespace-nowrap align-middle">
                       {order.chef || 'Unassigned'}
                     </td>
-                    <td className="px-4 py-3.5 border-b border-slate-100 text-slate-500 whitespace-nowrap align-middle">
+                    <td className="px-4 py-3.5 border-b border-hairline text-muted whitespace-nowrap align-middle">
                       {order.createdAt}
                     </td>
-                    <td className="px-4 py-3.5 border-b border-slate-100 whitespace-nowrap align-middle">
+                    <td className="px-4 py-3.5 border-b border-hairline whitespace-nowrap align-middle">
                       <span className={`inline-flex px-2.5 py-1 rounded-full font-bold text-[10px] ${stageColors[order.stage]}`}>
                         {order.stage}
                       </span>
                     </td>
-                    <td className="px-4 py-3.5 border-b border-slate-100 align-middle w-[260px]">
+                    <td className="px-4 py-3.5 border-b border-hairline align-middle w-[260px]">
                       {/* Fixed 3-slot grid so every row's buttons line up */}
                       <div className="grid grid-cols-[72px_96px_32px] items-center justify-end gap-2 ml-auto w-max">
                         <button
                           type="button"
                           onClick={() => onSelectOrder(order)}
-                          className="h-8 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg"
+                          className="h-8 px-2.5 bg-canvas hover:bg-lilac-chip text-lilac-ink font-semibold rounded-lg"
                         >
                           Details
                         </button>
@@ -98,7 +98,7 @@ export const OrdersTableView: React.FC<OrdersTableViewProps> = ({
                           <button
                             type="button"
                             onClick={() => onMoveStage(order.id, nextStage)}
-                            className="h-8 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg inline-flex items-center justify-center gap-1.5"
+                            className="h-8 px-2.5 bg-charcoal hover:bg-charcoal-hover text-white font-bold rounded-lg inline-flex items-center justify-center gap-1.5"
                           >
                             <span>{advanceLabel[nextStage]}</span>
                             <ArrowRight className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} />
@@ -110,7 +110,7 @@ export const OrdersTableView: React.FC<OrdersTableViewProps> = ({
                         <button
                           type="button"
                           onClick={() => onDeleteOrder(order.id)}
-                          className="h-8 w-8 inline-flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                          className="h-8 w-8 inline-flex items-center justify-center text-faint hover:text-red-500 hover:bg-red-50 rounded-lg"
                           aria-label="Delete order"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

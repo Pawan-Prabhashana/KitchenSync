@@ -4,6 +4,7 @@ import { X, Plus, Minus, PackageCheck, MapPin } from 'lucide-react';
 import { User, PaymentMethod } from '../types';
 import { MENU_ITEMS, DEMO_RIDERS, PAYMENT_METHODS } from '../data/menu';
 import SelectMenu from './SelectMenu';
+import { Avatar } from './Avatar';
 
 interface NewDeliveryOrderModalProps {
   currentUser: User | null;
@@ -107,20 +108,20 @@ export const NewDeliveryOrderModal: React.FC<NewDeliveryOrderModalProps> = ({ on
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.18 }}
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-surface rounded-2xl max-w-2xl w-full shadow-2xl border border-hairline overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Header */}
-        <div className="p-4 px-6 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div className="p-4 px-6 border-b border-hairline flex items-center justify-between bg-canvas">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-indigo-100 text-indigo-800 rounded-xl">
+            <div className="p-2 bg-sky-chip text-sky-ink rounded-xl">
               <PackageCheck className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">Create New Delivery Order</h2>
-              <p className="text-xs text-slate-500">Customer, address, items and payment</p>
+              <h2 className="text-base font-bold text-ink">Create New Delivery Order</h2>
+              <p className="text-xs text-muted">Customer, address, items and payment</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg" aria-label="Close">
+          <button onClick={onClose} className="p-1.5 text-faint hover:text-ink hover:bg-slate-200 rounded-lg" aria-label="Close">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -129,38 +130,38 @@ export const NewDeliveryOrderModal: React.FC<NewDeliveryOrderModalProps> = ({ on
           {/* Customer + address */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Customer Name</label>
+              <label className="block text-xs font-bold text-ink mb-1">Customer Name</label>
               <input
                 type="text"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 placeholder="e.g. Amaya Wijesinghe"
-                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full text-xs p-2.5 bg-canvas border border-hairline rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-dot/40 focus:border-sky-dot"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Distance (km)</label>
+              <label className="block text-xs font-bold text-ink mb-1">Distance (km)</label>
               <input
                 type="number"
                 min={0}
                 step={0.1}
                 value={distanceKm}
                 onChange={(e) => setDistanceKm(e.target.value)}
-                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full text-xs p-2.5 bg-canvas border border-hairline rounded-xl font-mono focus:outline-none focus:ring-2 focus:ring-sky-dot/40 focus:border-sky-dot"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Delivery Address</label>
+            <label className="block text-xs font-bold text-ink mb-1">Delivery Address</label>
             <div className="relative">
-              <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <MapPin className="w-4 h-4 text-faint absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder="e.g. 42/1 Horton Place, Colombo 07"
-                className="w-full pl-9 pr-3 text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full pl-9 pr-3 text-xs p-2.5 bg-canvas border border-hairline rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-dot/40 focus:border-sky-dot"
               />
             </div>
           </div>
@@ -168,7 +169,7 @@ export const NewDeliveryOrderModal: React.FC<NewDeliveryOrderModalProps> = ({ on
           {/* Payment + rider */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Payment Method</label>
+              <label className="block text-xs font-bold text-ink mb-1">Payment Method</label>
               <SelectMenu
                 options={PAYMENT_METHODS.map(p => ({ value: p, label: p }))}
                 value={paymentMethod}
@@ -177,7 +178,7 @@ export const NewDeliveryOrderModal: React.FC<NewDeliveryOrderModalProps> = ({ on
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Assign Rider (Optional)</label>
+              <label className="block text-xs font-bold text-ink mb-1">Assign Rider (Optional)</label>
               <SelectMenu
                 options={[{ value: '', label: 'Auto / Select Rider' }, ...DEMO_RIDERS.map(r => ({ value: r.name, label: r.name }))]}
                 value={riderName}
@@ -188,8 +189,8 @@ export const NewDeliveryOrderModal: React.FC<NewDeliveryOrderModalProps> = ({ on
                   const rider = DEMO_RIDERS.find(u => u.name === opt.label);
                   return (
                     <div className="flex items-center gap-2">
-                      {rider?.avatar ? <img src={rider.avatar} alt={rider.name} className="w-5 h-5 rounded-full object-cover" /> : null}
-                      <span className="text-sm font-medium text-slate-800">{opt.label}</span>
+                      <Avatar name={opt.label} role="rider" size="xs" showRing={false} />
+                      <span className="text-sm font-medium text-ink">{opt.label}</span>
                     </div>
                   );
                 }}
@@ -199,14 +200,14 @@ export const NewDeliveryOrderModal: React.FC<NewDeliveryOrderModalProps> = ({ on
 
           {/* Menu */}
           <div>
-            <div className="flex items-center gap-1.5 border-b border-slate-200 pb-2 mb-3">
+            <div className="flex items-center gap-1.5 border-b border-hairline pb-2 mb-3">
               {categories.map(cat => (
                 <button
                   key={cat}
                   type="button"
                   onClick={() => setActiveCategory(cat)}
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                    activeCategory === cat ? 'bg-indigo-600 text-white shadow-2xs' : 'text-slate-600 hover:bg-slate-100'
+                    activeCategory === cat ? 'bg-indigo-600 text-white shadow-soft' : 'text-muted hover:bg-canvas'
                   }`}
                 >
                   {cat}
@@ -222,19 +223,19 @@ export const NewDeliveryOrderModal: React.FC<NewDeliveryOrderModalProps> = ({ on
                     key={item.id}
                     onClick={() => handleAddItem(item)}
                     className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all flex items-center justify-between ${
-                      selected ? 'border-indigo-500 bg-indigo-50/50 ring-1 ring-indigo-500' : 'border-slate-200 hover:border-slate-300 bg-slate-50/30'
+                      selected ? 'border-indigo-500 bg-sky-chip/40 ring-1 ring-sky-dot' : 'border-hairline hover:border-hairline bg-canvas/30'
                     }`}
                   >
                     <div>
-                      <div className="text-xs font-bold text-slate-800">{item.name}</div>
-                      <div className="text-[10px] text-slate-400 font-mono">${item.price.toFixed(2)}</div>
+                      <div className="text-xs font-bold text-ink">{item.name}</div>
+                      <div className="text-[10px] text-faint font-mono">${item.price.toFixed(2)}</div>
                     </div>
                     {selected ? (
                       <span className="w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
                         {selected.quantity}
                       </span>
                     ) : (
-                      <Plus className="w-4 h-4 text-slate-400" />
+                      <Plus className="w-4 h-4 text-faint" />
                     )}
                   </div>
                 );
@@ -245,24 +246,24 @@ export const NewDeliveryOrderModal: React.FC<NewDeliveryOrderModalProps> = ({ on
           {/* Summary */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs font-bold text-slate-700">Order Items ({Object.keys(selectedItems).length})</h3>
-              <span className="text-xs font-mono font-bold text-indigo-700">Total ${total.toFixed(2)}</span>
+              <h3 className="text-xs font-bold text-ink">Order Items ({Object.keys(selectedItems).length})</h3>
+              <span className="text-xs font-mono font-bold text-sky-ink">Total ${total.toFixed(2)}</span>
             </div>
             {selectedList.length === 0 ? (
-              <div className="p-3 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
+              <div className="p-3 text-center text-xs text-faint border border-dashed border-hairline rounded-xl">
                 Click menu items above to add to order
               </div>
             ) : (
-              <div className="space-y-1.5 max-h-36 overflow-y-auto border border-slate-200 rounded-xl p-2.5 bg-slate-50">
+              <div className="space-y-1.5 max-h-36 overflow-y-auto border border-hairline rounded-xl p-2.5 bg-canvas">
                 {selectedList.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between text-xs bg-white p-2 rounded-lg border border-slate-100 shadow-2xs">
-                    <span className="font-semibold text-slate-800">{item.name}</span>
+                  <div key={item.id} className="flex items-center justify-between text-xs bg-surface p-2 rounded-lg border border-hairline shadow-soft">
+                    <span className="font-semibold text-ink">{item.name}</span>
                     <div className="flex items-center gap-2">
-                      <button type="button" onClick={() => handleDecreaseItem(item.id)} className="p-1 text-slate-500 hover:bg-slate-100 rounded-md">
+                      <button type="button" onClick={() => handleDecreaseItem(item.id)} className="p-1 text-muted hover:bg-canvas rounded-md">
                         <Minus className="w-3 h-3" />
                       </button>
-                      <span className="font-bold text-slate-900 w-4 text-center">{item.quantity}</span>
-                      <button type="button" onClick={() => handleAddItem(MENU_ITEMS.find(i => i.id === item.id)!)} className="p-1 text-slate-500 hover:bg-slate-100 rounded-md">
+                      <span className="font-bold text-ink w-4 text-center">{item.quantity}</span>
+                      <button type="button" onClick={() => handleAddItem(MENU_ITEMS.find(i => i.id === item.id)!)} className="p-1 text-muted hover:bg-canvas rounded-md">
                         <Plus className="w-3 h-3" />
                       </button>
                     </div>
@@ -274,21 +275,21 @@ export const NewDeliveryOrderModal: React.FC<NewDeliveryOrderModalProps> = ({ on
 
           {/* Notes */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Delivery Notes (e.g. "Ring bell twice")</label>
+            <label className="block text-xs font-bold text-ink mb-1">Delivery Notes (e.g. "Ring bell twice")</label>
             <textarea
               rows={2}
               value={specialNotes}
               onChange={(e) => setSpecialNotes(e.target.value)}
               placeholder="e.g. Leave with security. Apartment 4B."
-              className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full text-xs p-2.5 bg-canvas border border-hairline rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-dot/40"
             />
           </div>
 
           <div className="pt-2 flex items-center justify-end gap-3">
-            <button type="button" onClick={onClose} className="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-100 font-semibold text-xs rounded-xl">
+            <button type="button" onClick={onClose} className="px-4 py-2 border border-hairline text-muted hover:bg-canvas font-semibold text-xs rounded-xl">
               Cancel
             </button>
-            <button type="submit" className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs">
+            <button type="submit" className="px-6 py-2 bg-charcoal hover:bg-charcoal-hover text-white font-bold text-xs rounded-xl shadow-soft">
               Dispatch Order
             </button>
           </div>

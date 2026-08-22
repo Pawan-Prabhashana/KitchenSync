@@ -35,21 +35,22 @@ export const TABLES = [
   'Table 16', 'Table 17', 'Table 18', 'Table 19', 'Table 20'
 ];
 
+// Avatars are rendered by <Avatar/> from initials — no external image URLs.
 export const DEMO_USERS = [
-  { id: 'u1', name: 'Priya Fernando', role: 'chef' as const, email: 'priya@kitchensync.com', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80' },
-  { id: 'u2', name: 'Nuwan Perera', role: 'chef' as const, email: 'nuwan@kitchensync.com', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80' },
-  { id: 'u3', name: 'Chamath Silva', role: 'chef' as const, email: 'chamath@kitchensync.com', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80' },
-  { id: 'u4', name: 'Nimal Jayasuriya', role: 'waiter' as const, email: 'nimal@kitchensync.com', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80' },
-  { id: 'u5', name: 'Hasini Dias', role: 'waiter' as const, email: 'hasini@kitchensync.com', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80' },
-  { id: 'u6', name: 'Kavindu Cooray', role: 'waiter' as const, email: 'kavindu@kitchensync.com', avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80' }
+  { id: 'u1', name: 'Priya Fernando', role: 'chef' as const, email: 'priya@kitchensync.com' },
+  { id: 'u2', name: 'Nuwan Perera', role: 'chef' as const, email: 'nuwan@kitchensync.com' },
+  { id: 'u3', name: 'Chamath Silva', role: 'chef' as const, email: 'chamath@kitchensync.com' },
+  { id: 'u4', name: 'Nimal Jayasuriya', role: 'waiter' as const, email: 'nimal@kitchensync.com' },
+  { id: 'u5', name: 'Hasini Dias', role: 'waiter' as const, email: 'hasini@kitchensync.com' },
+  { id: 'u6', name: 'Kavindu Cooray', role: 'waiter' as const, email: 'kavindu@kitchensync.com' }
 ];
 
 /** Delivery-side staff — riders who pick up and drop off orders. */
 export const DEMO_RIDERS = [
-  { id: 'r1', name: 'Sanjaya Bandara', role: 'rider' as const, email: 'sanjaya@kitchensync.com', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80' },
-  { id: 'r2', name: 'Dilan Rathnayake', role: 'rider' as const, email: 'dilan@kitchensync.com', avatar: 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150&auto=format&fit=crop&q=80' },
-  { id: 'r3', name: 'Tharindu Fonseka', role: 'rider' as const, email: 'tharindu@kitchensync.com', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80' },
-  { id: 'r4', name: 'Ishara Gunawardena', role: 'rider' as const, email: 'ishara@kitchensync.com', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80' }
+  { id: 'r1', name: 'Sanjaya Bandara', role: 'rider' as const, email: 'sanjaya@kitchensync.com' },
+  { id: 'r2', name: 'Dilan Rathnayake', role: 'rider' as const, email: 'dilan@kitchensync.com' },
+  { id: 'r3', name: 'Tharindu Fonseka', role: 'rider' as const, email: 'tharindu@kitchensync.com' },
+  { id: 'r4', name: 'Ishara Gunawardena', role: 'rider' as const, email: 'ishara@kitchensync.com' }
 ];
 
 export const PAYMENT_METHODS: Array<'Cash' | 'Card' | 'Online'> = ['Cash', 'Card', 'Online'];

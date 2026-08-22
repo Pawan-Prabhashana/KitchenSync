@@ -50,27 +50,27 @@ export const BOARD_ACCENTS: Record<BoardType, BoardAccent> = {
   kitchen: {
     label: 'Kitchen',
     subtitle: 'Real-time Kitchen Board',
-    solidBtn: 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white',
-    logoBox: 'bg-emerald-600 text-white',
-    navActive: 'bg-emerald-50 text-emerald-700',
-    navIcon: 'text-emerald-600',
-    livePill: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    liveDot: 'bg-emerald-500',
-    avatarFallback: 'bg-emerald-100 text-emerald-800',
-    switcherChip: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100',
-    focusInput: 'focus:ring-emerald-500/20 focus:border-emerald-500'
+    solidBtn: 'bg-charcoal hover:bg-charcoal-hover text-white',
+    logoBox: 'bg-green-chip text-green-ink',
+    navActive: 'bg-charcoal text-white',
+    navIcon: 'text-green-ink',
+    livePill: 'bg-green-chip text-green-ink',
+    liveDot: 'bg-green-dot',
+    avatarFallback: 'bg-green-chip text-green-ink',
+    switcherChip: 'bg-green-chip text-green-ink hover:brightness-95',
+    focusInput: 'focus:ring-green-dot/40 focus:border-green-dot'
   },
   delivery: {
     label: 'Delivery',
     subtitle: 'Live Delivery Dispatch',
-    solidBtn: 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white',
-    logoBox: 'bg-indigo-600 text-white',
-    navActive: 'bg-indigo-50 text-indigo-700',
-    navIcon: 'text-indigo-600',
-    livePill: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-    liveDot: 'bg-indigo-500',
-    avatarFallback: 'bg-indigo-100 text-indigo-800',
-    switcherChip: 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100',
-    focusInput: 'focus:ring-indigo-500/20 focus:border-indigo-500'
+    solidBtn: 'bg-charcoal hover:bg-charcoal-hover text-white',
+    logoBox: 'bg-sky-chip text-sky-ink',
+    navActive: 'bg-charcoal text-white',
+    navIcon: 'text-sky-ink',
+    livePill: 'bg-sky-chip text-sky-ink',
+    liveDot: 'bg-sky-dot',
+    avatarFallback: 'bg-sky-chip text-sky-ink',
+    switcherChip: 'bg-sky-chip text-sky-ink hover:brightness-95',
+    focusInput: 'focus:ring-sky-dot/40 focus:border-sky-dot'
   }
 };

@@ -48,26 +48,26 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
-        className={`w-full text-left bg-slate-50 border border-slate-200 text-slate-800 flex items-center justify-between ${sizeBtn}`}
+        className={`w-full text-left bg-canvas border border-hairline text-ink flex items-center justify-between ${sizeBtn}`}
       >
         <div className="flex items-center gap-2">
           {selected ? (
             <span className="text-sm font-medium">{selected.label}</span>
           ) : (
-            <span className="text-xs text-slate-500">{placeholder}</span>
+            <span className="text-xs text-muted">{placeholder}</span>
           )}
         </div>
-        <ChevronDown className="w-4 h-4 text-slate-400" />
+        <ChevronDown className="w-4 h-4 text-faint" />
       </button>
 
       {open && (
-        <ul className={`absolute left-0 right-0 ${openUp ? 'bottom-full mb-2' : 'mt-2'} bg-white border border-slate-200 rounded-lg shadow-lg max-h-56 overflow-y-auto z-40`}>
+        <ul className={`absolute left-0 right-0 ${openUp ? 'bottom-full mb-2' : 'mt-2'} bg-surface border border-hairline rounded-lg shadow-lg max-h-56 overflow-y-auto z-40`}>
           {options.map(opt => (
             <li key={opt.value}>
               <button
                 type="button"
                 onClick={() => { onChange(opt.value); setOpen(false); }}
-                className="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 flex items-center gap-2"
+                className="w-full text-left px-3 py-2 text-xs hover:bg-canvas flex items-center gap-2"
               >
                 {renderItem ? renderItem(opt) : <span className="flex-1">{opt.label}</span>}
               </button>

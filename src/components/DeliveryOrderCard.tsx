@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Clock, Trash2, MapPin, Bike, ArrowRight, CheckCircle2, Wallet, Navigation, AlertTriangle } from 'lucide-react';
 import SelectMenu from './SelectMenu';
+import { Avatar } from './Avatar';
 import { DeliveryOrder, DeliveryStage, User } from '../types';
 import { DEMO_RIDERS } from '../data/menu';
 import { getNextDeliveryStage } from '../lib/boardConfig';
@@ -19,9 +20,9 @@ interface DeliveryOrderCardProps {
 }
 
 const paymentStyle: Record<DeliveryOrder['paymentMethod'], string> = {
-  Cash: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  Card: 'bg-blue-50 text-blue-700 border-blue-200',
-  Online: 'bg-indigo-50 text-indigo-700 border-indigo-200'
+  Cash: 'bg-green-chip text-green-ink border-green-chip',
+  Card: 'bg-sky-chip text-sky-ink border-sky-chip',
+  Online: 'bg-lilac-chip text-lilac-ink border-lilac-chip'
 };
 
 export const DeliveryOrderCard: React.FC<DeliveryOrderCardProps> = ({
@@ -62,13 +63,13 @@ export const DeliveryOrderCard: React.FC<DeliveryOrderCardProps> = ({
   const elapsedMins = elapsedSeconds / 60;
 
   // Lateness urgency framed around the delivery ETA window.
-  let timerBadgeStyle = 'text-emerald-600 bg-emerald-50 border-emerald-100';
+  let timerBadgeStyle = 'text-green-ink bg-green-chip border-green-chip';
   let timerLabel = 'On time';
   if (elapsedMins >= order.etaMinutes * 1.25) {
-    timerBadgeStyle = 'text-red-600 bg-red-50 border-red-200 font-bold animate-pulse';
+    timerBadgeStyle = 'text-coral-ink bg-coral-chip border-coral-dot font-bold animate-pulse';
     timerLabel = 'Very late';
   } else if (elapsedMins >= order.etaMinutes) {
-    timerBadgeStyle = 'text-amber-600 bg-amber-50 border-amber-200 font-semibold';
+    timerBadgeStyle = 'text-peach-ink bg-peach-chip border-peach-dot font-semibold';
     timerLabel = 'Past ETA';
   }
 
@@ -96,16 +97,16 @@ export const DeliveryOrderCard: React.FC<DeliveryOrderCardProps> = ({
         draggable
         onDragStart={handleDragStart}
         onClick={() => onSelect(order)}
-        className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs hover:shadow-md transition-all cursor-pointer group hover:border-slate-300"
+        className="bg-surface border border-hairline rounded-xl p-3 shadow-soft hover:shadow-md transition-all cursor-pointer group hover:border-slate-300"
       >
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+            <div className="w-6 h-6 rounded-full bg-sky-chip text-sky-ink flex items-center justify-center shrink-0">
               <CheckCircle2 className="w-3.5 h-3.5" />
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-bold text-slate-800 truncate">{order.customerName}</div>
-              <div className="text-[10px] text-slate-400">Delivered {order.deliveredAt || order.lastUpdatedAt}</div>
+              <div className="text-xs font-bold text-ink truncate">{order.customerName}</div>
+              <div className="text-[10px] text-faint">Delivered {order.deliveredAt || order.lastUpdatedAt}</div>
             </div>
           </div>
           <button
@@ -130,8 +131,8 @@ export const DeliveryOrderCard: React.FC<DeliveryOrderCardProps> = ({
       draggable
       onDragStart={handleDragStart}
       onClick={() => onSelect(order)}
-      className={`bg-white border rounded-xl p-3.5 shadow-xs hover:shadow-md transition-all cursor-pointer group relative ${
-        isConflict ? 'border-amber-400 ring-2 ring-amber-200' : 'border-slate-200 hover:border-indigo-300'
+      className={`bg-surface border rounded-xl p-3.5 shadow-soft hover:shadow-md transition-all cursor-pointer group relative ${
+        isConflict ? 'border-amber-400 ring-2 ring-amber-200' : 'border-hairline hover:border-sky-dot/60'
       }`}
     >
       {/* Live-update flash overlay */}
@@ -140,7 +141,7 @@ export const DeliveryOrderCard: React.FC<DeliveryOrderCardProps> = ({
           initial={{ opacity: 0.55 }}
           animate={{ opacity: 0 }}
           transition={{ duration: 0.85 }}
-          className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-indigo-400 bg-indigo-400/10"
+          className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-sky-dot bg-sky-dot/10"
         />
       )}
 
@@ -155,16 +156,16 @@ export const DeliveryOrderCard: React.FC<DeliveryOrderCardProps> = ({
       {/* Top row: customer + order id */}
       <div className="flex items-center justify-between gap-2 mb-1.5">
         <div className="flex items-center gap-1.5 min-w-0">
-          <span className="text-sm font-bold text-slate-900 truncate">{order.customerName}</span>
+          <span className="text-sm font-bold text-ink truncate">{order.customerName}</span>
         </div>
-        <span className="text-[10px] text-slate-400 font-mono shrink-0">{order.id}</span>
+        <span className="text-[10px] text-faint font-mono shrink-0">{order.id}</span>
       </div>
 
       {/* Address + distance */}
-      <div className="flex items-center gap-1.5 mb-2.5 text-[11px] text-slate-500 font-medium">
-        <MapPin className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+      <div className="flex items-center gap-1.5 mb-2.5 text-[11px] text-muted font-medium">
+        <MapPin className="w-3.5 h-3.5 text-sky-dot shrink-0" />
         <span className="truncate">{order.address}</span>
-        <span className="ml-auto shrink-0 px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-mono text-[10px]">
+        <span className="ml-auto shrink-0 px-1.5 py-0.5 rounded-md bg-canvas text-muted font-mono text-[10px]">
           {order.distanceKm.toFixed(1)} km
         </span>
       </div>
@@ -172,12 +173,12 @@ export const DeliveryOrderCard: React.FC<DeliveryOrderCardProps> = ({
       {/* Items */}
       <div className="space-y-0.5 mb-3">
         {order.items.slice(0, 3).map((item, idx) => (
-          <div key={idx} className="text-xs text-slate-700 font-medium">
+          <div key={idx} className="text-xs text-ink font-medium">
             {item.quantity}x {item.name}
           </div>
         ))}
         {order.items.length > 3 && (
-          <div className="text-[10px] text-slate-400 font-medium italic">
+          <div className="text-[10px] text-faint font-medium italic">
             +{order.items.length - 3} more item(s)...
           </div>
         )}
@@ -189,14 +190,14 @@ export const DeliveryOrderCard: React.FC<DeliveryOrderCardProps> = ({
           <Wallet className="w-3 h-3" />
           {order.paymentMethod}
         </span>
-        <span className="font-mono font-bold text-slate-800">${order.orderTotal.toFixed(2)}</span>
+        <span className="font-mono font-bold text-ink">${order.orderTotal.toFixed(2)}</span>
       </div>
 
       {/* Rider assignment (once out of Preparing, a rider is needed) */}
       {(!order.rider || order.stage === 'Preparing' || order.stage === 'Ready for Pickup') && (
         <div className="mb-3" onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mb-1">
-            <Bike className="w-3.5 h-3.5 text-indigo-400" />
+          <div className="flex items-center gap-1.5 text-[11px] text-muted mb-1">
+            <Bike className="w-3.5 h-3.5 text-sky-dot" />
             <span>Assign rider:</span>
           </div>
           <SelectMenu
@@ -209,8 +210,8 @@ export const DeliveryOrderCard: React.FC<DeliveryOrderCardProps> = ({
               const rider = DEMO_RIDERS.find(u => u.name === opt.label);
               return (
                 <div className="flex items-center gap-2">
-                  {rider?.avatar ? <img src={rider.avatar} alt={rider.name} className="w-5 h-5 rounded-full object-cover" /> : null}
-                  <span className="text-sm font-medium text-slate-800">{opt.label}</span>
+                  <Avatar name={opt.label} role="rider" size="xs" showRing={false} />
+                  <span className="text-sm font-medium text-ink">{opt.label}</span>
                 </div>
               );
             }}
@@ -219,9 +220,9 @@ export const DeliveryOrderCard: React.FC<DeliveryOrderCardProps> = ({
       )}
 
       {order.rider && order.stage === 'Out for Delivery' && (
-        <div className="mb-3 flex items-center gap-1.5 text-[11px] text-slate-600 font-medium">
-          <Navigation className="w-3.5 h-3.5 text-indigo-500" />
-          Rider: <strong className="text-slate-800 font-semibold">{order.rider}</strong>
+        <div className="mb-3 flex items-center gap-1.5 text-[11px] text-muted font-medium">
+          <Navigation className="w-3.5 h-3.5 text-sky-ink" />
+          Rider: <strong className="text-ink font-semibold">{order.rider}</strong>
         </div>
       )}
 
@@ -233,7 +234,7 @@ export const DeliveryOrderCard: React.FC<DeliveryOrderCardProps> = ({
       )}
 
       {/* Footer: ETA timer + advance */}
-      <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100" onClick={(e) => e.stopPropagation()}>
+      <div className="flex items-center justify-between gap-2 pt-2 border-t border-hairline" onClick={(e) => e.stopPropagation()}>
         <div className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-mono border ${timerBadgeStyle}`} title={`${timerLabel} · ETA ${order.etaMinutes} min`}>
           <Clock className="w-3 h-3 shrink-0" />
           <span>{formatTimer(elapsedSeconds)}</span>
@@ -243,10 +244,10 @@ export const DeliveryOrderCard: React.FC<DeliveryOrderCardProps> = ({
           {nextStage && (
             <button
               onClick={() => onMoveStage(order.id, nextStage)}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all shadow-2xs active:scale-95 ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all shadow-soft active:scale-95 ${
                 order.stage === 'Out for Delivery'
-                  ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                  : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200'
+                  ? 'bg-charcoal hover:bg-charcoal-hover text-white'
+                  : 'bg-sky-chip hover:brightness-95 text-sky-ink border border-sky-chip'
               }`}
             >
               <span>{advanceLabel}</span>
@@ -255,7 +256,7 @@ export const DeliveryOrderCard: React.FC<DeliveryOrderCardProps> = ({
           )}
           <button
             onClick={() => onDelete(order.id)}
-            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+            className="p-1.5 text-faint hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
             aria-label="Cancel / delete delivery"
           >
             <Trash2 className="w-3.5 h-3.5" />

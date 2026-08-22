@@ -16,10 +16,10 @@ interface OrderDetailDrawerProps {
 }
 
 const stageBadgeColor: Record<Stage, string> = {
-  New: 'bg-blue-100 text-blue-800 border-blue-200',
-  Cooking: 'bg-amber-100 text-amber-800 border-amber-200',
-  Ready: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-  Served: 'bg-slate-100 text-slate-700 border-slate-200'
+  New: 'bg-sky-chip text-sky-ink border-blue-200',
+  Cooking: 'bg-peach-chip text-peach-ink border-amber-200',
+  Ready: 'bg-green-chip text-green-ink border-emerald-200',
+  Served: 'bg-canvas text-ink border-hairline'
 };
 
 export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
@@ -74,24 +74,24 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
         exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col overflow-y-auto border-l border-slate-200"
+        className="w-full max-w-md bg-surface h-full shadow-2xl flex flex-col overflow-y-auto border-l border-hairline"
       >
-        <div className="p-5 border-b border-slate-200 flex items-start justify-between bg-slate-50/50">
+        <div className="p-5 border-b border-hairline flex items-start justify-between bg-canvas/50">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-xl font-bold text-slate-900">{order.tableNumber}</h2>
+              <h2 className="text-xl font-bold text-ink">{order.tableNumber}</h2>
               <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${stageBadgeColor[order.stage]}`}>
                 {order.stage}
               </span>
             </div>
-            <p className="text-xs text-slate-500 font-medium">
-              Order ID: <strong className="text-slate-700 font-mono">{order.id}</strong>
+            <p className="text-xs text-muted font-medium">
+              Order ID: <strong className="text-ink font-mono">{order.id}</strong>
             </p>
-            <p className="text-xs text-slate-400">Placed at {order.createdAt} ({mins} min ago)</p>
+            <p className="text-xs text-faint">Placed at {order.createdAt} ({mins} min ago)</p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+            className="p-1.5 text-faint hover:text-ink hover:bg-canvas rounded-lg transition-colors"
             aria-label="Close drawer"
           >
             <X className="w-5 h-5" />
@@ -100,11 +100,11 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
 
         <div className="p-5 space-y-6 flex-1 overflow-y-auto">
           <div>
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Item List</h3>
-            <ul className="space-y-2 bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+            <h3 className="text-xs font-bold text-faint uppercase tracking-wider mb-2">Item List</h3>
+            <ul className="space-y-2 bg-canvas p-3.5 rounded-xl border border-hairline">
               {order.items.map((item, idx) => (
-                <li key={idx} className="flex items-center gap-2 text-xs text-slate-800 font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <li key={idx} className="flex items-center gap-2 text-xs text-ink font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-chip/500" />
                   <span>{item.quantity}x {item.name}</span>
                 </li>
               ))}
@@ -113,7 +113,7 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
 
           {order.specialNotes && (
             <div>
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Special Notes</h3>
+              <h3 className="text-xs font-bold text-faint uppercase tracking-wider mb-2">Special Notes</h3>
               <div className="bg-amber-50 border border-amber-200/80 p-3.5 rounded-xl text-xs font-medium text-amber-950 whitespace-pre-line leading-relaxed">
                 {order.specialNotes}
               </div>
@@ -121,40 +121,40 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
           )}
 
           <div>
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Order Info</h3>
-            <div className="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100 text-xs">
+            <h3 className="text-xs font-bold text-faint uppercase tracking-wider mb-2">Order Info</h3>
+            <div className="bg-surface border border-hairline rounded-xl divide-y divide-hairline text-xs">
               <div className="p-2.5 flex items-center justify-between">
-                <span className="text-slate-500">Waiter</span>
-                <span className="font-semibold text-slate-800">{order.waiter}</span>
+                <span className="text-muted">Waiter</span>
+                <span className="font-semibold text-ink">{order.waiter}</span>
               </div>
               <div className="p-2.5 flex items-center justify-between">
-                <span className="text-slate-500">Chef</span>
-                <span className="font-semibold text-slate-800">{order.chef || 'Unassigned'}</span>
+                <span className="text-muted">Chef</span>
+                <span className="font-semibold text-ink">{order.chef || 'Unassigned'}</span>
               </div>
               <div className="p-2.5 flex items-center justify-between">
-                <span className="text-slate-500">Current Stage</span>
-                <span className="font-semibold text-emerald-700 capitalize flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span className="text-muted">Current Stage</span>
+                <span className="font-semibold text-green-ink capitalize flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-green-chip/500" />
                   {order.stage}
                 </span>
               </div>
               <div className="p-2.5 flex items-center justify-between">
-                <span className="text-slate-500">Time Elapsed</span>
-                <span className="font-mono font-bold text-slate-800">{mins} min {secs} sec</span>
+                <span className="text-muted">Time Elapsed</span>
+                <span className="font-mono font-bold text-ink">{mins} min {secs} sec</span>
               </div>
               <div className="p-2.5 flex items-center justify-between">
-                <span className="text-slate-500">Version</span>
-                <span className="font-mono font-bold text-slate-600">v{order.version}</span>
+                <span className="text-muted">Version</span>
+                <span className="font-mono font-bold text-muted">v{order.version}</span>
               </div>
               <div className="p-2.5 flex items-center justify-between">
-                <span className="text-slate-500">Last Updated</span>
-                <span className="text-slate-700 font-medium">{order.lastUpdatedAt} by {order.lastUpdatedBy}</span>
+                <span className="text-muted">Last Updated</span>
+                <span className="text-ink font-medium">{order.lastUpdatedAt} by {order.lastUpdatedBy}</span>
               </div>
             </div>
           </div>
 
           <div>
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">History</h3>
+            <h3 className="text-xs font-bold text-faint uppercase tracking-wider mb-3">History</h3>
             <div className="space-y-3 relative pl-4 before:absolute before:left-[7px] before:top-1.5 before:bottom-1.5 before:w-[2px] before:bg-slate-200">
               {KITCHEN_STAGES.map(stg => {
                 const historyEntry = order.history.find(h => h.stage === stg);
@@ -163,14 +163,14 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                 return (
                   <div key={stg} className="flex items-center justify-between text-xs relative">
                     <div className="flex items-center gap-2.5">
-                      <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center -ml-[19px] bg-white ring-2 ${
-                        isCurrent || isPassed ? 'ring-emerald-500 bg-emerald-500' : 'ring-slate-300'
+                      <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center -ml-[19px] bg-surface ring-2 ${
+                        isCurrent || isPassed ? 'ring-green-dot bg-green-chip/500' : 'ring-slate-300'
                       }`}>
-                        {isPassed && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                        {isPassed && <span className="w-1.5 h-1.5 rounded-full bg-surface" />}
                       </span>
-                      <span className={`font-semibold ${isPassed ? 'text-slate-800' : 'text-slate-400'}`}>{stg}</span>
+                      <span className={`font-semibold ${isPassed ? 'text-ink' : 'text-faint'}`}>{stg}</span>
                     </div>
-                    <span className="text-slate-400 font-mono text-[11px]">
+                    <span className="text-faint font-mono text-[11px]">
                       {historyEntry ? `${historyEntry.timestamp} by ${historyEntry.user}` : '—'}
                     </span>
                   </div>
@@ -197,7 +197,7 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
               </div>
               <button
                 onClick={onRefreshConflict}
-                className="p-1.5 hover:bg-amber-100 rounded-lg text-amber-800 transition-colors shrink-0"
+                className="p-1.5 hover:bg-amber-100 rounded-lg text-peach-ink transition-colors shrink-0"
                 aria-label="Refresh to latest version"
               >
                 <RefreshCw className="w-4 h-4" />
@@ -206,12 +206,12 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
           )}
         </div>
 
-        <div className="border-t border-slate-200 bg-slate-50/50">
+        <div className="border-t border-hairline bg-canvas/50">
           {onSimulateConflict && order.stage !== 'Served' && (
             <div className="px-4 pt-3">
               <button
                 onClick={() => onSimulateConflict(order.id)}
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 border border-dashed border-slate-300 text-slate-500 hover:text-emerald-700 hover:border-emerald-400 hover:bg-emerald-50/50 text-[11px] font-semibold rounded-lg transition-all"
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 border border-dashed border-hairline text-muted hover:text-green-ink hover:border-emerald-400 hover:bg-green-chip/40 text-[11px] font-semibold rounded-lg transition-all"
                 title="Demo only: simulate a teammate editing this order to trigger the conflict guard"
               >
                 <FlaskConical className="w-3.5 h-3.5" />
@@ -232,7 +232,7 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
             {nextStage ? (
               <button
                 onClick={() => onMoveStage(order.id, nextStage)}
-                className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all"
+                className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 bg-charcoal hover:bg-charcoal-hover text-white font-bold text-xs rounded-xl shadow-soft transition-all"
               >
                 <span>{advanceLabel}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -240,7 +240,7 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
             ) : (
               <button
                 onClick={onClose}
-                className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-xs transition-all"
+                className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-soft transition-all"
               >
                 Close
               </button>
