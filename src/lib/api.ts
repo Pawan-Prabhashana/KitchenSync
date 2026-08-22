@@ -161,14 +161,15 @@ export const api = {
     return request<User[]>('GET', '/api/users');
   },
 
-  // ─── kitchen orders ──────────────────────────────────────────────────────
-  listOrders(): Promise<Order[]> {
-    return request<Order[]>('GET', '/api/orders');
+  // ─── kitchen orders (scoped by branch) ─────────────────────────────────────
+  listOrders(branchId: string): Promise<Order[]> {
+    return request<Order[]>('GET', `/api/orders?branchId=${enc(branchId)}`);
   },
   getOrder(id: string): Promise<Order> {
     return request<Order>('GET', `/api/orders/${enc(id)}`);
   },
   createOrder(input: {
+    branchId: string;
     tableNumber: string;
     items: Array<{ id: string; name: string; quantity: number }>;
     specialNotes?: string;
@@ -187,14 +188,15 @@ export const api = {
     return request<void>('DELETE', `/api/orders/${enc(id)}`);
   },
 
-  // ─── delivery orders ─────────────────────────────────────────────────────
-  listDeliveries(): Promise<DeliveryOrder[]> {
-    return request<DeliveryOrder[]>('GET', '/api/deliveries');
+  // ─── delivery orders (scoped by branch) ────────────────────────────────────
+  listDeliveries(branchId: string): Promise<DeliveryOrder[]> {
+    return request<DeliveryOrder[]>('GET', `/api/deliveries?branchId=${enc(branchId)}`);
   },
   getDelivery(id: string): Promise<DeliveryOrder> {
     return request<DeliveryOrder>('GET', `/api/deliveries/${enc(id)}`);
   },
   createDelivery(input: {
+    branchId: string;
     customerName: string;
     address: string;
     distanceKm: number;

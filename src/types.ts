@@ -5,6 +5,13 @@ export type Stage = 'New' | 'Cooking' | 'Ready' | 'Served';
 /** Which board the user is currently working in. */
 export type BoardType = 'kitchen' | 'delivery';
 
+/** A restaurant branch (location). Kitchen + delivery data is scoped per branch. */
+export interface Branch {
+  id: string;
+  name: string;
+  city: string;
+}
+
 /** Column stages for the Delivery board (kept separate from kitchen Stage). */
 export type DeliveryStage = 'Preparing' | 'Ready for Pickup' | 'Out for Delivery' | 'Delivered';
 
@@ -35,6 +42,7 @@ export interface OrderHistoryItem {
 
 export interface Order {
   id: string;
+  branchId: string;
   tableNumber: string;
   items: OrderItem[];
   specialNotes?: string;
@@ -67,6 +75,7 @@ export interface DeliveryHistoryItem {
  */
 export interface DeliveryOrder {
   id: string;
+  branchId: string;
   customerName: string;
   address: string;
   distanceKm: number;

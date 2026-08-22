@@ -5,6 +5,7 @@ const min = 60 * 1000;
 export const INITIAL_HARDCODED_DELIVERY_ORDERS: DeliveryOrder[] = [
   {
     id: '#DEL-2001',
+    branchId: 'br-colombo',
     customerName: 'Amaya Wijesinghe',
     address: '42/1 Horton Place, Colombo 07',
     distanceKm: 3.2,
@@ -29,6 +30,7 @@ export const INITIAL_HARDCODED_DELIVERY_ORDERS: DeliveryOrder[] = [
   },
   {
     id: '#DEL-2002',
+    branchId: 'br-colombo',
     customerName: 'Ruwan Jayakody',
     address: '15 Bauddhaloka Mawatha, Colombo 04',
     distanceKm: 5.1,
@@ -53,6 +55,7 @@ export const INITIAL_HARDCODED_DELIVERY_ORDERS: DeliveryOrder[] = [
   },
   {
     id: '#DEL-2003',
+    branchId: 'br-colombo',
     customerName: 'Sachini Peris',
     address: '88 Galle Road, Mount Lavinia',
     distanceKm: 8.7,
@@ -78,6 +81,7 @@ export const INITIAL_HARDCODED_DELIVERY_ORDERS: DeliveryOrder[] = [
   },
   {
     id: '#DEL-2004',
+    branchId: 'br-colombo',
     customerName: 'Menaka Herath',
     address: '7 Duplication Road, Colombo 03',
     distanceKm: 2.4,
@@ -104,6 +108,7 @@ export const INITIAL_HARDCODED_DELIVERY_ORDERS: DeliveryOrder[] = [
   },
   {
     id: '#DEL-2005',
+    branchId: 'br-colombo',
     customerName: 'Chathura Alwis',
     address: '120 Nawala Road, Nugegoda',
     distanceKm: 6.9,
@@ -131,6 +136,7 @@ export const INITIAL_HARDCODED_DELIVERY_ORDERS: DeliveryOrder[] = [
   },
   {
     id: '#DEL-2006',
+    branchId: 'br-colombo',
     customerName: 'Nethmi Rajapaksha',
     address: '33 Marine Drive, Colombo 06',
     distanceKm: 4.5,

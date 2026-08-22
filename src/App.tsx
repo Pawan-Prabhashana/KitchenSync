@@ -8,6 +8,7 @@ import { Header } from './components/Header';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import SelectBoardPage from './pages/SelectBoardPage';
+import SelectBranchPage from './pages/SelectBranchPage';
 import { Sidebar } from './components/Sidebar';
 import { Board } from './components/Board';
 import { DeliveryBoard } from './components/DeliveryBoard';
@@ -33,43 +34,44 @@ import {
   User,
   FilterOptions,
   BoardType,
+  Branch,
   DeliveryOrder,
   DeliveryStage,
   PaymentMethod
 } from './types';
 import { DEMO_USERS, DEMO_RIDERS, MENU_ITEMS } from './data/menu';
+import { BRANCHES, findBranch } from './data/branches';
 import { INITIAL_HARDCODED_ORDERS } from './data/initialOrders';
 import { INITIAL_HARDCODED_DELIVERY_ORDERS } from './data/initialDeliveryOrders';
 import { getNextKitchenStage, getNextDeliveryStage } from './lib/boardConfig';
 import { useConflictGuard } from './hooks/useConflictGuard';
 import { api, ApiError, getToken, getCachedUser, clearSession } from './lib/api';
 
-const KITCHEN_ORDERS_KEY = 'kitchensync_orders_kitchen_v1';
-const DELIVERY_ORDERS_KEY = 'kitchensync_orders_delivery_v1';
 const ACTIVE_BOARD_KEY = 'kitchensync_active_board_v1';
-/** Migrate from the original single-board localStorage key if present. */
-const LEGACY_ORDERS_KEY = 'kitchensync_orders_v1';
+const ACTIVE_BRANCH_KEY = 'kitchensync_active_branch_v1';
 
-function loadKitchenOrders(): Order[] {
+/** Per-branch offline-cache keys (localStorage is a cache; the API is authoritative). */
+const kitchenKey = (branchId: string) => `kitchensync_orders_kitchen_${branchId}_v1`;
+const deliveryKey = (branchId: string) => `kitchensync_orders_delivery_${branchId}_v1`;
+
+function loadKitchenOrders(branchId: string): Order[] {
   try {
-    const saved = localStorage.getItem(KITCHEN_ORDERS_KEY);
+    const saved = localStorage.getItem(kitchenKey(branchId));
     if (saved) return JSON.parse(saved);
-    const legacy = localStorage.getItem(LEGACY_ORDERS_KEY);
-    if (legacy) return JSON.parse(legacy);
   } catch {
     console.warn('Could not read kitchen orders from localStorage');
   }
-  return INITIAL_HARDCODED_ORDERS;
+  return INITIAL_HARDCODED_ORDERS.map(o => ({ ...o, branchId }));
 }
 
-function loadDeliveryOrders(): DeliveryOrder[] {
+function loadDeliveryOrders(branchId: string): DeliveryOrder[] {
   try {
-    const saved = localStorage.getItem(DELIVERY_ORDERS_KEY);
+    const saved = localStorage.getItem(deliveryKey(branchId));
     if (saved) return JSON.parse(saved);
   } catch {
     console.warn('Could not read delivery orders from localStorage');
   }
-  return INITIAL_HARDCODED_DELIVERY_ORDERS;
+  return INITIAL_HARDCODED_DELIVERY_ORDERS.map(o => ({ ...o, branchId }));
 }
 
 function loadActiveBoard(): BoardType | null {
@@ -80,6 +82,14 @@ function loadActiveBoard(): BoardType | null {
     /* ignore */
   }
   return null;
+}
+
+function loadActiveBranch(): Branch | null {
+  try {
+    return findBranch(localStorage.getItem(ACTIVE_BRANCH_KEY));
+  } catch {
+    return null;
+  }
 }
 
 function nowTime(): string {
@@ -96,6 +106,7 @@ export default function App() {
   }, []);
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [activeBranch, setActiveBranch] = useState<Branch | null>(() => loadActiveBranch());
   const [boardType, setBoardType] = useState<BoardType | null>(() => loadActiveBoard());
   // True once we've attempted to restore a session from a stored JWT.
   const [sessionRestored, setSessionRestored] = useState<boolean>(false);
@@ -107,21 +118,40 @@ export default function App() {
     }
   }, [currentUser, sessionRestored]);
 
-  // Authenticated but no board → board picker
+  // Authenticated but no branch → branch picker
   useEffect(() => {
     if (
       currentUser &&
+      !activeBranch &&
+      route !== '#/select-branch' &&
+      route !== '#/login' &&
+      route !== '#/signup'
+    ) {
+      window.location.hash = '#/select-branch';
+    }
+  }, [currentUser, activeBranch, route]);
+
+  // Authenticated with a branch but no board → board picker
+  useEffect(() => {
+    if (
+      currentUser &&
+      activeBranch &&
       !boardType &&
       route !== '#/select-board' &&
+      route !== '#/select-branch' &&
       route !== '#/login' &&
       route !== '#/signup'
     ) {
       window.location.hash = '#/select-board';
     }
-  }, [currentUser, boardType, route]);
+  }, [currentUser, activeBranch, boardType, route]);
 
-  const [orders, setOrders] = useState<Order[]>(loadKitchenOrders);
-  const [deliveryOrders, setDeliveryOrders] = useState<DeliveryOrder[]>(loadDeliveryOrders);
+  const [orders, setOrders] = useState<Order[]>(() =>
+    activeBranch ? loadKitchenOrders(activeBranch.id) : []
+  );
+  const [deliveryOrders, setDeliveryOrders] = useState<DeliveryOrder[]>(() =>
+    activeBranch ? loadDeliveryOrders(activeBranch.id) : []
+  );
 
   const [activeUsersCount] = useState<number>(6);
   // Reflects live API reachability. localStorage acts as an offline cache; when a
@@ -159,11 +189,12 @@ export default function App() {
    * hydrated state instantly; this replaces it with server truth when reachable,
    * and leaves the cache untouched (marking us offline) when the API is down.
    */
-  const reloadFromApi = async () => {
+  const reloadFromApi = async (branch: Branch | null = activeBranch) => {
+    if (!branch) return;
     try {
       const [srvOrders, srvDeliveries] = await Promise.all([
-        api.listOrders(),
-        api.listDeliveries()
+        api.listOrders(branch.id),
+        api.listDeliveries(branch.id)
       ]);
       setOrders(srvOrders);
       setDeliveryOrders(srvDeliveries);
@@ -206,30 +237,42 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Whenever we have a user, pull the latest orders/deliveries from the API.
+  // Whenever we have a user AND a chosen branch, pull that branch's data.
   useEffect(() => {
-    if (!currentUser) return;
-    reloadFromApi();
+    if (!currentUser || !activeBranch) return;
+    reloadFromApi(activeBranch);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser]);
+  }, [currentUser, activeBranch]);
 
-  // Persist kitchen orders
+  // Persist kitchen orders (cache, scoped to the active branch)
   useEffect(() => {
+    if (!activeBranch) return;
     try {
-      localStorage.setItem(KITCHEN_ORDERS_KEY, JSON.stringify(orders));
+      localStorage.setItem(kitchenKey(activeBranch.id), JSON.stringify(orders));
     } catch {
       console.warn('Failed to save kitchen orders to localStorage');
     }
-  }, [orders]);
+  }, [orders, activeBranch]);
 
-  // Persist delivery orders
+  // Persist delivery orders (cache, scoped to the active branch)
   useEffect(() => {
+    if (!activeBranch) return;
     try {
-      localStorage.setItem(DELIVERY_ORDERS_KEY, JSON.stringify(deliveryOrders));
+      localStorage.setItem(deliveryKey(activeBranch.id), JSON.stringify(deliveryOrders));
     } catch {
       console.warn('Failed to save delivery orders to localStorage');
     }
-  }, [deliveryOrders]);
+  }, [deliveryOrders, activeBranch]);
+
+  // Persist active branch
+  useEffect(() => {
+    try {
+      if (activeBranch) localStorage.setItem(ACTIVE_BRANCH_KEY, activeBranch.id);
+      else localStorage.removeItem(ACTIVE_BRANCH_KEY);
+    } catch {
+      /* ignore */
+    }
+  }, [activeBranch]);
 
   // Persist active board
   useEffect(() => {
@@ -246,15 +289,59 @@ export default function App() {
 
   const handleAuthSuccess = (user: User) => {
     setCurrentUser(user);
-    // Always show the board picker after login so the user can choose Kitchen or Delivery.
-    // (A previously persisted board was skipping this step.)
+    // Fresh interactive login → run the full flow: branch, then board.
+    setActiveBranch(null);
     setBoardType(null);
     setActiveTab('board');
     setSelectedOrder(null);
     setSelectedDeliveryOrder(null);
     kitchenConflict.clear();
     deliveryConflict.clear();
-    window.location.hash = '#/select-board';
+    window.location.hash = '#/select-branch';
+  };
+
+  /** Load a branch's cached data and reset per-branch view state. */
+  const applyBranch = (branch: Branch) => {
+    setActiveBranch(branch);
+    setOrders(loadKitchenOrders(branch.id));
+    setDeliveryOrders(loadDeliveryOrders(branch.id));
+    setSelectedOrder(null);
+    setSelectedDeliveryOrder(null);
+    setUndoStack([]);
+    setDeliveryUndoStack([]);
+    kitchenConflict.clear();
+    deliveryConflict.clear();
+  };
+
+  const handleSelectBranch = (branch: Branch) => {
+    applyBranch(branch);
+    // Continue the flow: if a board is already chosen, go straight in; else pick one.
+    window.location.hash = boardType ? '' : '#/select-board';
+  };
+
+  /** Header switcher: swap branch in place, staying on the current board. */
+  const handleSwitchBranch = (branch: Branch) => {
+    if (branch.id === activeBranch?.id) return;
+    applyBranch(branch);
+  };
+
+  /** Go back to the full branch picker screen. */
+  const handleChangeBranch = () => {
+    window.location.hash = '#/select-branch';
+  };
+
+  const handleLogout = () => {
+    api.logout();
+    setCurrentUser(null);
+    setActiveBranch(null);
+    setBoardType(null);
+    setOrders([]);
+    setDeliveryOrders([]);
+    setSelectedOrder(null);
+    setSelectedDeliveryOrder(null);
+    kitchenConflict.clear();
+    deliveryConflict.clear();
+    window.location.hash = '#/login';
   };
 
   const handleSelectBoard = (board: BoardType) => {
@@ -417,12 +504,15 @@ export default function App() {
     waiterName: string;
     chefName?: string;
   }) => {
+    if (!activeBranch) return;
+    const branchId = activeBranch.id;
     const nowStr = nowTime();
     const newId = `#ORD-${Math.floor(1000 + Math.random() * 9000)}`;
     const waiterName = orderData.waiterName || currentUser?.name || 'Waiter';
 
     const newOrder: Order = {
       id: newId,
+      branchId,
       tableNumber: orderData.tableNumber,
       items: orderData.items,
       stage: 'New',
@@ -452,6 +542,7 @@ export default function App() {
     void (async () => {
       try {
         const created = await api.createOrder({
+          branchId,
           tableNumber: orderData.tableNumber,
           items: orderData.items,
           specialNotes: orderData.specialNotes,
@@ -667,6 +758,8 @@ export default function App() {
     specialNotes: string;
     riderName?: string;
   }) => {
+    if (!activeBranch) return;
+    const branchId = activeBranch.id;
     const nowStr = nowTime();
     const newId = `#DEL-${Math.floor(2000 + Math.random() * 9000)}`;
     const actor = currentUser?.name || 'Staff';
@@ -678,6 +771,7 @@ export default function App() {
 
     const newOrder: DeliveryOrder = {
       id: newId,
+      branchId,
       customerName: data.customerName,
       address: data.address,
       distanceKm: data.distanceKm,
@@ -709,6 +803,7 @@ export default function App() {
     void (async () => {
       try {
         const created = await api.createDelivery({
+          branchId,
           customerName: data.customerName,
           address: data.address,
           distanceKm: data.distanceKm,
@@ -852,12 +947,29 @@ export default function App() {
     return <SignupPage onAuthSuccess={handleAuthSuccess} />;
   }
 
-  if (route === '#/select-board' || (currentUser && !boardType)) {
-    return <SelectBoardPage currentUser={currentUser} onSelect={handleSelectBoard} />;
+  // Branch picker: after auth, before a branch is chosen.
+  if (currentUser && (route === '#/select-branch' || !activeBranch)) {
+    return (
+      <SelectBranchPage
+        currentUser={currentUser}
+        activeBranchId={activeBranch?.id ?? null}
+        onSelect={handleSelectBranch}
+      />
+    );
   }
 
-  // Guard: no user → login (hash effect handles redirect, but avoid flash)
-  if (!currentUser || !boardType) {
+  if (currentUser && activeBranch && (route === '#/select-board' || !boardType)) {
+    return (
+      <SelectBoardPage
+        currentUser={currentUser}
+        branch={activeBranch}
+        onSelect={handleSelectBoard}
+      />
+    );
+  }
+
+  // Guard: no user/branch/board → login (hash effect handles redirect, avoid flash)
+  if (!currentUser || !activeBranch || !boardType) {
     return null;
   }
 
@@ -876,7 +988,7 @@ export default function App() {
       : null;
 
   return (
-    <div className="min-h-screen bg-slate-100/60 font-sans text-slate-800 flex flex-col antialiased">
+    <div className="min-h-screen bg-canvas font-sans text-ink flex flex-col antialiased">
       <Header
         currentUser={currentUser}
         activeUsersCount={activeUsersCount}
@@ -889,6 +1001,10 @@ export default function App() {
         activeTab={activeTab}
         boardType={boardType}
         onSwitchBoard={handleSwitchBoard}
+        activeBranch={activeBranch}
+        branches={BRANCHES}
+        onSwitchBranch={handleSwitchBranch}
+        onChangeBranch={handleChangeBranch}
       />
 
       <div className="flex flex-1 items-stretch">
@@ -899,6 +1015,9 @@ export default function App() {
           setFilters={setFilters}
           onOpenNewOrder={() => setIsNewOrderModalOpen(true)}
           boardType={boardType}
+          currentUser={currentUser}
+          onLogout={handleLogout}
+          onOpenAuth={() => setIsAuthModalOpen(true)}
         />
 
         <main className="flex-1 overflow-y-auto pb-12 ml-64">

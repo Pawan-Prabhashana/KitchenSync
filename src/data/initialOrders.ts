@@ -3,6 +3,7 @@ import { Order } from '../types';
 export const INITIAL_HARDCODED_ORDERS: Order[] = [
   {
     id: '#ORD-1001',
+    branchId: 'br-colombo',
     tableNumber: 'Table 04',
     items: [
       { id: 'm1', name: 'Chicken Fried Rice', quantity: 2 },
@@ -24,6 +25,7 @@ export const INITIAL_HARDCODED_ORDERS: Order[] = [
   },
   {
     id: '#ORD-1002',
+    branchId: 'br-colombo',
     tableNumber: 'Table 08',
     items: [
       { id: 'm3', name: 'BBQ Chicken Pizza', quantity: 1 },
@@ -46,6 +48,7 @@ export const INITIAL_HARDCODED_ORDERS: Order[] = [
   },
   {
     id: '#ORD-1003',
+    branchId: 'br-colombo',
     tableNumber: 'Table 12',
     items: [
       { id: 'm2', name: 'Grilled Chicken', quantity: 2 },
@@ -68,6 +71,7 @@ export const INITIAL_HARDCODED_ORDERS: Order[] = [
   },
   {
     id: '#ORD-1004',
+    branchId: 'br-colombo',
     tableNumber: 'Table 02',
     items: [
       { id: 'm5', name: 'Beef Burger', quantity: 2 },
@@ -90,6 +94,7 @@ export const INITIAL_HARDCODED_ORDERS: Order[] = [
   },
   {
     id: '#ORD-1005',
+    branchId: 'br-colombo',
     tableNumber: 'Table 15',
     items: [
       { id: 'm4', name: 'Seafood Pasta', quantity: 1 },
@@ -116,6 +121,7 @@ export const INITIAL_HARDCODED_ORDERS: Order[] = [
   },
   {
     id: '#ORD-1006',
+    branchId: 'br-colombo',
     tableNumber: 'Table 01',
     items: [
       { id: 'm6', name: 'Fish & Chips', quantity: 2 },
